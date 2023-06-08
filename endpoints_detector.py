@@ -12,30 +12,23 @@ from cm_types import success_response, error_response
 @app.route("/send_image", methods=["POST"])
 def send_image():
     try:
-        img = Image.open(request.json["image"])
+        img = Image.open(request.files["image"])
         img.save(f"{IMAGE_PATH}/{datetime.now()}")
-        return success_response("success")
+        return success_response("/send_image", "success")
     except BaseException as err:
-        return error_response(f"(try-except)send_image --- Unexpected {err=}, {type(err)=}")
-
-@app.route("/get_current_time")
-def get_current_time():
-    try:
-        return success_response(datetime.now())
-    except BaseException as err:
-        return error_response(f"(try-except)get_current_time --- Unexpected {err=}, {type(err)=}")
+        return error_response("/send_image", f"Unexpected {err=}, {type(err)=}")
 
 @app.route("/get_config")
 def get_config():
     try:
-        return success_response(DETECTOR_CONFIG)
+        return success_response("/get_config", DETECTOR_CONFIG)
     except BaseException as err:
-        return error_response(f"(try-except)get_config --- Unexpected {err=}, {type(err)=}")
+        return error_response("/get_config", f"Unexpected {err=}, {type(err)=}")
 
 @app.route("/set_config")
 def set_config():
     try:
         #TODO: implement setting
-        return success_response("success")
+        return success_response("/set_config", "success")
     except BaseException as err:
-        return error_response(f"(try-except)set_config --- Unexpected {err=}, {type(err)=}")
+        return error_response("/set_config", f"Unexpected {err=}, {type(err)=}")

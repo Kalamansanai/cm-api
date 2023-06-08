@@ -15,4 +15,4 @@ data = {
 
 @app.route("/get_data")
 def get_data():
-    return success_response(data)
+    return success_response("/get_data", data)
