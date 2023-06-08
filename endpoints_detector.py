@@ -18,13 +18,6 @@ def send_image():
     except BaseException as err:
         return error_response("/send_image", f"Unexpected {err=}, {type(err)=}")
 
-@app.route("/get_current_time")
-def get_current_time():
-    try:
-        return success_response("/get_current_time", datetime.now())
-    except BaseException as err:
-        return error_response("/get_current_time", f"Unexpected {err=}, {type(err)=}")
-
 @app.route("/get_config")
 def get_config():
     try:
