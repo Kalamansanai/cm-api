@@ -2,6 +2,8 @@ import logging
 
 PRODUCTION = False
 
+MONGO_URI = "mongodb+srv://dev:kiskacsa@cluster0.fb9cr7y.mongodb.net/?retryWrites=true&w=majority"
+
 IMAGE_PATH = "images"
 
 DETECTOR_CONFIG = {

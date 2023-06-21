@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import request, abort
+from flask import request
 from startup import app
 
 from PIL import Image 
@@ -13,7 +13,7 @@ from cm_types import success_response, error_response
 def send_image():
     try:
         img = Image.open(request.files["image"])
-        img.save(f"{IMAGE_PATH}/{datetime.now()}")
+        img.save(f"{IMAGE_PATH}/{datetime.now()}.png")
         return success_response("/send_image", "success")
     except BaseException as err:
         return error_response("/send_image", f"Unexpected {err=}, {type(err)=}")
