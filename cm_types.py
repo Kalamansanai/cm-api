@@ -24,5 +24,6 @@ def user_data(creation_time: str, name: str, email: str, password_salt: str, pas
         "email": email,
         "password_salt": password_salt,
         "password_hash": password_hash,
-        "email_verification_token": token
+        "email_verification_token": token,
+        "config": {}
     }

@@ -29,7 +29,10 @@ def utc_now():
 
 def create_set_cookie_response(user: dict):
     user_data = {key: value for key,
-                 value in user.items() if key in ["creation_time", "name", "email"]}
+                 value in user.items() if key in ["_id", "creation_time", "name", "email"]}
+
+    # TODO: need to find out if the id is necessary
+    user_data["_id"] = str(user["_id"])
 
     token = jwt.encode(payload=user_data, key=JWT_SECRET)
 

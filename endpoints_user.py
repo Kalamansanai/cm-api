@@ -12,7 +12,7 @@ def test_db():
     return success_response("/get_data", _test_db())
 
 
-@app.route("/user", methods=["POST"])
+@app.route("/register", methods=["POST"])
 def add_user():
     try:
         name, email, password = cm_utils.validate_json(
@@ -104,3 +104,19 @@ def logout():
         return response
     except BaseException as err:
         return error_response("/logout", f"Unexpected {err=}, {type(err)=}")
+
+
+@app.route("/set_config", methods=["POST"])
+def set_user_config():
+    try:
+        (new_config, ) = cm_utils.validate_json(["new_config"])
+        user_data = cm_utils.auth_token()
+        if user_data is None:
+            return error_response("/set_config", "no user signed in")
+
+        mongo.cm_test.users.update_one({"email": user_data['email']}, {
+            "$set": {"config": new_config}})
+
+        return success_response("/set_config", "config updated successfully")
+    except BaseException as err:
+        return error_response("/set_config", f"Unexpected {err=}, {type(err)=}")
