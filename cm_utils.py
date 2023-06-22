@@ -43,3 +43,20 @@ def create_set_cookie_response(user: dict):
         secure=SESSION_COOKIE_HTTPS_ONLY
     )
     return response
+
+
+def create_delete_cookie_token():
+    response = make_response(success_response(
+        "/create_delete_cookie_token", "successfully logged out"))
+    response.delete_cookie(JWT_COOKIE_KEY)
+    return response
+
+
+def auth_token():
+    token = request.cookies.get(JWT_COOKIE_KEY)
+
+    if token is None:
+        return None
+
+    value = jwt.decode(token, key=JWT_SECRET, algorithms=["HS256",])
+    return value

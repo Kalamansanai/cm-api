@@ -1,4 +1,4 @@
-from flask import request
+from flask import make_response, request
 from startup import app
 from cm_types import success_response, error_response, user_data
 from cm_mongo import test_db as _test_db
@@ -91,3 +91,16 @@ def login():
 
     except BaseException as err:
         return error_response("/login", f"Unexpected {err=}, {type(err)=}")
+
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    try:
+        user = cm_utils.auth_token()
+        if user is None:
+            return error_response("/logout", "no user signed in")
+
+        response = cm_utils.create_delete_cookie_token()
+        return response
+    except BaseException as err:
+        return error_response("/logout", f"Unexpected {err=}, {type(err)=}")
