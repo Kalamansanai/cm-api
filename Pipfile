@@ -7,6 +7,9 @@ name = "pypi"
 flask = "*"
 pillow = "*"
 flask-cors = "*"
+pymongo = "*"
+certifi = "*"
+pyjwt = "*"
 
 [dev-packages]
 
