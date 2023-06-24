@@ -1,13 +1,15 @@
 from datetime import datetime
 
 from flask import request
-from startup import app
+from startup import app, mongo
 
-from PIL import Image 
+from PIL import Image
 import PIL
 
-from cm_config import IMAGE_PATH, DETECTOR_CONFIG
+from cm_config import IMAGE_PATH, DETECTOR_CONFIG, Logger
 from cm_types import success_response, error_response
+import cm_utils
+
 
 @app.route("/send_image", methods=["POST"])
 def send_image():
@@ -18,6 +20,7 @@ def send_image():
     except BaseException as err:
         return error_response("/send_image", f"Unexpected {err=}, {type(err)=}")
 
+
 @app.route("/get_config")
 def get_config():
     try:
@@ -25,10 +28,44 @@ def get_config():
     except BaseException as err:
         return error_response("/get_config", f"Unexpected {err=}, {type(err)=}")
 
+
 @app.route("/set_config")
 def set_config():
     try:
-        #TODO: implement setting
+        # TODO: implement setting
         return success_response("/set_config", "success")
     except BaseException as err:
         return error_response("/set_config", f"Unexpected {err=}, {type(err)=}")
+
+
+@app.route("/add_detector", methods=["POST"])
+def add_detector_to_user():
+    try:
+        user_data = cm_utils.auth_token()
+        if user_data is None:
+            return error_response("/add_detector", "no user signed in")
+
+        (detector_id, type) = cm_utils.validate_json(["detector_id", "type"])
+
+        log_id = mongo.cm_test.logs.insert_one({
+            "detector_id": detector_id,
+            "logs": []
+        }).inserted_id
+
+        new_detector = {
+            "detector_id": detector_id,
+            "type": type,
+            "log_id": log_id
+        }
+
+        Logger.info(new_detector)
+
+        mongo.cm_test.users.update_one(
+            {'email': user_data["email"]},
+            {'$push': {"detectors": new_detector}}
+        )
+
+        return success_response("/add_detector", "detector added successfully")
+
+    except BaseException as err:
+        return error_response("/add_detector", f"Unexpected {err=}, {type(err)=}")
