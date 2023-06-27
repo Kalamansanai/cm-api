@@ -18,7 +18,7 @@ def add_user():
         name, email, password = cm_utils.validate_json(
             ["name", "email", "password"])
 
-        user = mongo.cm_test.users.find_one({"email": email})
+        user = mongo.users.find_one({"email": email})
         if user is not None:
             return error_response("/user", "email already registered")
         user: dict = {}
@@ -29,7 +29,7 @@ def add_user():
         user = user_data(cm_utils.utc_now(), name, email,
                          salt, hash, cm_utils.create_token())
 
-        id = mongo.cm_test.users.insert_one(user).inserted_id
+        id = mongo.users.insert_one(user).inserted_id
 
         # TODO: need to make the verification email send
 
@@ -42,8 +42,22 @@ def add_user():
 def get_user():
     try:
         name = request.json["name"]
-        user = mongo.cm_test.users.find_one({"name": name})
-        return success_response("/get_user", {"id": str(user["_id"]), "username": user["name"], "age": user["age"]})
+        user = mongo.users.find_one({"name": name})
+
+        user_data = {key: value for key,
+                     value in user.items() if key not in ["_id"]}
+
+        list = []
+        for detector in user_data["detectors"]:
+            list.append(
+                {key: value for key,
+                 value in detector.items() if key not in ["log_id"]}
+            )
+
+        user_data["detectors"] = list
+
+        Logger.info(user_data)
+        return success_response("/get_user", user_data)
     except BaseException as err:
         return error_response("/get_user", f"Unexpected {err=}, {type(err)=}")
 
@@ -52,32 +66,17 @@ def get_user():
 def delete_users():
     try:
         name = request.json["name"]
-        mongo.cm_test.users.delete_one({"name": name})
+        mongo.users.delete_one({"name": name})
         return success_response("/delete_user", "User successfully deleted.")
     except BaseException as err:
         return error_response("/delete_user", f"Unexpected {err=}, {type(err)=}")
-
-
-@app.route("/users", methods=["GET"])
-def get_users():
-    try:
-        name = request.json["name"]
-        users = mongo.cm_test.users.find({"name": name})
-        users_res = {"users": []}
-        for user in users:
-            users_res["users"].append(
-                {"id": str(user["_id"]), "username": user["name"], "age": user["age"]})
-        return success_response("/get_user", users_res)
-
-    except BaseException as err:
-        return error_response("/get_users", f"Unexpected {err=}, {type(err)=}")
 
 
 @app.route("/login", methods=["POST"])
 def login():
     try:
         email, password = cm_utils.validate_json(["email", "password"])
-        user = mongo.cm_test.users.find_one({"email": email})
+        user = mongo.users.find_one({"email": email})
         if user is None:
             return error_response("/login", "this email has not been registered")
         if not user["password_salt"] or not user["password_hash"]:
@@ -114,7 +113,7 @@ def set_user_config():
         if user_data is None:
             return error_response("/set_config", "no user signed in")
 
-        mongo.cm_test.users.update_one({"email": user_data['email']}, {
+        mongo.users.update_one({"email": user_data['email']}, {
             "$set": {"config": new_config}})
 
         return success_response("/set_config", "config updated successfully")

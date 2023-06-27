@@ -3,6 +3,7 @@ import logging
 PRODUCTION = False
 
 MONGO_URI = "mongodb+srv://dev:kiskacsa@cluster0.fb9cr7y.mongodb.net/?retryWrites=true&w=majority"
+DB_NAME = "cm_prod" if PRODUCTION else "cm_dev"
 
 IMAGE_PATH = "images"
 

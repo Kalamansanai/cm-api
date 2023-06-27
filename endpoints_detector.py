@@ -47,7 +47,7 @@ def add_detector_to_user():
 
         (detector_id, type) = cm_utils.validate_json(["detector_id", "type"])
 
-        log_id = mongo.cm_test.logs.insert_one({
+        log_id = mongo.logs.insert_one({
             "detector_id": detector_id,
             "logs": []
         }).inserted_id
@@ -60,7 +60,7 @@ def add_detector_to_user():
 
         Logger.info(new_detector)
 
-        mongo.cm_test.users.update_one(
+        mongo.users.update_one(
             {'email': user_data["email"]},
             {'$push': {"detectors": new_detector}}
         )
