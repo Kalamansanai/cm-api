@@ -9,13 +9,28 @@ import PIL
 from cm_config import IMAGE_PATH, DETECTOR_CONFIG, Logger
 from cm_types import success_response, error_response
 import cm_utils
+import random
+from datetime import datetime
 
 
-@app.route("/send_image", methods=["POST"])
-def send_image():
+def generate_mock_data():
+    return {"timestamp": datetime.now(), "value": random.randint(0, 10)}
+
+
+@app.route("/send_image/<detector_id>", methods=["POST"])
+def send_image(detector_id):
     try:
         img = Image.open(request.files["image"])
         img.save(f"{IMAGE_PATH}/{datetime.now()}.png")
+
+        # image processing(now its just mocking)
+        log_data = generate_mock_data()
+
+        mongo.logs.find_one_and_update(
+            {"detector_id": detector_id},
+            {"$push": {"logs": log_data}}
+        )
+
         return success_response("/send_image", "success")
     except BaseException as err:
         return error_response("/send_image", f"Unexpected {err=}, {type(err)=}")
