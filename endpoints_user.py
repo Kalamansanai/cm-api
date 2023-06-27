@@ -99,7 +99,7 @@ def logout():
         if user is None:
             return error_response("/logout", "no user signed in")
 
-        response = cm_utils.create_delete_cookie_token()
+        response = cm_utils.create_delete_cookie_response()
         return response
     except BaseException as err:
         return error_response("/logout", f"Unexpected {err=}, {type(err)=}")

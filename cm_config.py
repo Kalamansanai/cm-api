@@ -47,3 +47,6 @@ class Logger:
 
     def error(msg: str):
         _logger.error(msg)
+
+
+PLOT_COLOR = "hsl(101, 70%, 50%)"
