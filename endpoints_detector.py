@@ -14,14 +14,14 @@ from datetime import datetime
 
 
 def generate_mock_data():
-    return {"timestamp": datetime.now(), "value": random.randint(0, 10)}
+    return {"timestamp": datetime.now().timestamp(), "value": random.randint(0, 10)}
 
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):
     try:
         img = Image.open(request.files["image"])
-        img.save(f"{IMAGE_PATH}/{datetime.now()}.png")
+        img.save(f"{IMAGE_PATH}/{datetime.now().timestamp()}.png")
 
         # image processing(now its just mocking)
         log_data = generate_mock_data()
