@@ -41,20 +41,14 @@ def add_user():
 @app.route("/user", methods=["GET"])
 def get_user():
     try:
-        name = request.json["name"]
-        user = mongo.users.find_one({"name": name})
+        user = cm_utils.auth_token()
+        if user is None:
+            return error_response("/set_config", "no user signed in")
+
+        user = mongo.users.find_one({"email": user["email"]})
 
         user_data = {key: value for key,
                      value in user.items() if key not in ["_id"]}
-
-        list = []
-        for detector in user_data["detectors"]:
-            list.append(
-                {key: value for key,
-                 value in detector.items() if key not in ["log_id"]}
-            )
-
-        user_data["detectors"] = list
 
         Logger.info(user_data)
         return success_response("/get_user", user_data)
