@@ -69,8 +69,7 @@ def add_detector_to_user():
 
         new_detector = {
             "detector_id": detector_id,
-            "type": type,
-            "log_id": log_id
+            "type": type
         }
 
         Logger.info(new_detector)

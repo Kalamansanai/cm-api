@@ -48,7 +48,7 @@ def create_set_cookie_response(user: dict):
     return response
 
 
-def create_delete_cookie_token():
+def create_delete_cookie_response():
     response = make_response(success_response(
         "/create_delete_cookie_token", "successfully logged out"))
     response.delete_cookie(JWT_COOKIE_KEY)
