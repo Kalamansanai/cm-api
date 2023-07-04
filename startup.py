@@ -13,4 +13,5 @@ ca = certifi.where()
 mongo = MongoClient(MONGO_URI, tlsCAFile=ca)[DB_NAME]
 
 ALLOWED_ORIGINS = ["*"] if PRODUCTION else ["*"]
-CORS(app, resources={"/*": {"origins": ALLOWED_ORIGINS}})
+CORS(app, resources={"/*": {"origins": ALLOWED_ORIGINS}},
+     supports_credentials=True)
