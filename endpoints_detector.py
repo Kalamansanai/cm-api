@@ -47,7 +47,6 @@ def get_config():
 @app.route("/set_config")
 def set_config():
     try:
-        # TODO: implement setting
         return success_response("/set_config", "success")
     except BaseException as err:
         return error_response("/set_config", f"Unexpected {err=}, {type(err)=}")
@@ -69,6 +68,7 @@ def add_detector_to_user():
 
         new_detector = {
             "detector_id": detector_id,
+            "detector_config": {},
             "type": type
         }
 
@@ -83,3 +83,38 @@ def add_detector_to_user():
 
     except BaseException as err:
         return error_response("/add_detector", f"Unexpected {err=}, {type(err)=}")
+
+
+@app.route("/get_detector_config/<detector_id>")
+def get_detector_config(detector_id):
+    try:
+        user = mongo.users.find_one(
+            {"detectors.detector_id": detector_id}
+        )
+
+        detectors = {key: value for key,
+                     value in user.items() if key in ["detectors"]}
+
+        detectors = detectors["detectors"]
+        for det in detectors:
+            if det["detector_id"] == detector_id:
+                config = det["detector_config"]
+
+        return config
+    except BaseException as err:
+        return error_response("/get_detector_config", f"Unexpected {err=}, {type(err)=}")
+
+
+@app.route("/set_detector_config/<detector_id>")
+def set_detector_config(detector_id):
+    try:
+        (new_config,) = cm_utils.validate_json(["new_config"])
+
+        mongo.users.update_one(
+            {"detectors.detector_id": detector_id},
+            {"$set": {"detectors.$.detector_config": new_config}}
+        )
+
+        return success_response("/set_detector_config", "config updates successfully")
+    except BaseException as err:
+        return error_response("/set_detector_config", f"Unexpected {err=}, {type(err)=}")

@@ -36,7 +36,7 @@ def get_logs(detector_id):
         return error_response("/get_logs", f"Unexpected {err=}, {type(err)=}")
 
 
-@app.route("/get_logs_for_plot/<detector_id>")
+@app.route("/get_logs_for_plot/<detector_id>", methods=["POST"])
 def get_logs_for_plot(detector_id):
     try:
         (plot_type,) = cm_utils.validate_json(["plot_type"])
