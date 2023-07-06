@@ -23,7 +23,7 @@ LOG_PATH = (
 JWT_SECRET = "szialajosJNDSnjsdnjsnJNDSJNDJSnjsndjsnJSNDKJNSNDSJnd"
 JWT_COOKIE_KEY = "cm-user-token"
 SESSION_PERSISTANCE_TIME = 31536000  # 1 year max cookie age
-SESSION_COOKIE_HTTPS_ONLY = True
+SESSION_COOKIE_HTTPS_ONLY = False
 SESSION_KEY_SALT = "6670c7a914efe3ed2d8b4c83660252aa6ec3df21e2fbcb296d1c07511670defa"
 
 _logger = logging.Logger("cm-logger", level=logging.DEBUG)

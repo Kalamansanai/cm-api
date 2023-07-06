@@ -47,8 +47,10 @@ def get_user():
 
         user = mongo.users.find_one({"email": user["email"]})
 
+        ignored_fields = ["_id", "password_hash",
+                          "password_salt", "email_verification_token"]
         user_data = {key: value for key,
-                     value in user.items() if key not in ["_id"]}
+                     value in user.items() if key not in ignored_fields}
 
         Logger.info(user_data)
         return success_response("/get_user", user_data)
