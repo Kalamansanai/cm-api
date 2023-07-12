@@ -43,7 +43,8 @@ def create_set_cookie_response(user: dict):
         key=JWT_COOKIE_KEY,
         value=token,
         max_age=None,
-        secure=SESSION_COOKIE_HTTPS_ONLY
+        secure=True,
+        samesite="None"
     )
     return response
 

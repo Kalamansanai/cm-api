@@ -14,7 +14,7 @@ from datetime import datetime
 
 
 def generate_mock_data():
-    return {"timestamp": datetime.now().timestamp(), "value": random.randint(0, 10)}
+    return {"timestamp": datetime.now().timestamp(), "value": random.random(0, 10)}
 
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
@@ -59,7 +59,8 @@ def add_detector_to_user():
         if user_data is None:
             return error_response("/add_detector", "no user signed in")
 
-        (detector_id, type) = cm_utils.validate_json(["detector_id", "type"])
+        (detector_id, type, detector_name) = cm_utils.validate_json(
+            ["detector_id", "type", "detector_name"])
 
         log_id = mongo.logs.insert_one({
             "detector_id": detector_id,
@@ -68,6 +69,7 @@ def add_detector_to_user():
 
         new_detector = {
             "detector_id": detector_id,
+            "detector_name": detector_name,
             "detector_config": {},
             "type": type
         }
