@@ -12,6 +12,11 @@ import cm_utils
 import random
 from datetime import datetime
 
+from lib.detector import Detector
+
+
+detector = Detector("lib/model.pt")
+
 
 def generate_mock_data():
     return {"timestamp": datetime.now().timestamp(), "value": random.random(0, 10)}
@@ -24,7 +29,7 @@ def send_image(detector_id):
         img.save(f"{IMAGE_PATH}/{datetime.now().timestamp()}.png")
 
         # image processing(now its just mocking)
-        log_data = generate_mock_data()
+        log_data = detector.detect(img, 8, 3)
 
         mongo.logs.find_one_and_update(
             {"detector_id": detector_id},
