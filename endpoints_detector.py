@@ -112,7 +112,7 @@ def get_detector_config(detector_id):
         return error_response("/get_detector_config", f"Unexpected {err=}, {type(err)=}")
 
 
-@app.route("/set_detector_config/<detector_id>")
+@app.route("/set_detector_config/<detector_id>", methods=["POST"])
 def set_detector_config(detector_id):
     try:
         (new_config,) = cm_utils.validate_json(["new_config"])
