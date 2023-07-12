@@ -120,3 +120,21 @@ def set_detector_config(detector_id):
         return success_response("/set_detector_config", "config updates successfully")
     except BaseException as err:
         return error_response("/set_detector_config", f"Unexpected {err=}, {type(err)=}")
+
+
+@app.route("/detector/<detector_id>", methods=["DELETE"])
+def delete_detector(detector_id):
+    try:
+        # user_data = cm_utils.auth_token()
+        # if user_data is None:
+        #     return error_response("/add_detector", "no user signed in")
+
+        mongo.logs.delete_one({"detector_id": detector_id})
+
+        mongo.users.update_one(
+            {"detectors.detector_id": detector_id},
+            {"$pull": {"detectors": {"detector_id": detector_id}}})
+
+        return success_response("/delete_detector", "detector deleted successfully")
+    except BaseException as err:
+        return error_response("/delete_detector", f"Unexpected {err=}, {type(err)=}")
