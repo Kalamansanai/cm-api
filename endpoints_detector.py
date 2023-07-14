@@ -12,10 +12,10 @@ import cm_utils
 import random
 from datetime import datetime
 
-from lib.detector import Detector
+from library.detector import Detector
 
 
-detector = Detector("lib/model.pt")
+detector = Detector("library/plates.pt", "library/plates.pt")
 
 
 def generate_mock_data():
