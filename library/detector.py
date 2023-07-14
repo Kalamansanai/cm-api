@@ -8,7 +8,8 @@ class Detector:
 
     def __init__(self, plate_model_path, number_model_path):
         self.plates_model = YOLO(plate_model_path)
-        self.number_model = YOLO(plate_model_path)
+        self.number_model = YOLO(number_model_path)
+        print("Models laoded")
 
 
     def detect(self, img, length, decimal):
@@ -21,7 +22,7 @@ class Detector:
     def detect_plates(self, img):
         imgs = []
         results = self.plates_model.predict(source=[img])
-        print(f"Detector found {len(results)} number plates")
+        print(f"Detector found {len(results[0])} number plates")
         for result in results:
             for box in result.boxes:
                 x1, y1, x2, y2 = np.round(box.xyxy[0].numpy()).astype(int)
@@ -30,7 +31,22 @@ class Detector:
 
 
     def detect_numbers(self, img, length, decimal):
-        # TODO Detect numbers on image
+        # results = self.number_model.predict(source=[img])
+        # found = len(results[0])
+        # print(f"Detector found {found} numbers on plate.")
+        # if found != length:
+        #     print(f"It should be {length}")
+        #     return None
+        # else:
+        #     for result in results:
+        #         for box in result.boxes:
+        #             x1, y1, x2, y2 = np.round(box.xyxy[0].numpy()).astype(int)
+        #             tmp = img[y1:y2, x1:x2]
+        #             plt.imshow(tmp)
+        #             plt.plot()
+        #             plt.pause(10)
+
+
         return self.rnd(length, decimal)
 
 
@@ -43,6 +59,6 @@ class Detector:
 
 
 
-# d = Detector("library/plates.pt", "library/plates.pt")
+# d = Detector("library/plates.pt", "library/numbers.pt")
 # a = d.detect(cv2.imread("library/test.jpg"), 8, 3)
 # print(a)
