@@ -11,8 +11,10 @@ from cm_types import success_response, error_response
 import cm_utils
 import random
 from datetime import datetime
+import numpy as np
 
-from library.detector import Detector
+from detector import Detector
+from google_ocr import detect_text
 
 
 detector = Detector("library/plates.pt", "library/plates.pt")
@@ -25,15 +27,18 @@ def generate_mock_data():
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):
     try:
-        img = Image.open(request.files["image"])
-        img.save(f"{IMAGE_PATH}/{datetime.now().timestamp()}.png")
+        img = request.files["image"]
+        img_byte = img.read()
 
-        # image processing(now its just mocking)
-        log_data = detector.detect(img, 8, 3)
+        log_data = detect_text(img_byte, 8)
 
+        if log_data == None:
+            return success_response("send_image", "success_none")
+
+        log = {"timestamp": datetime.now().timestamp(), "value": int(log_data)}
         mongo.logs.find_one_and_update(
             {"detector_id": detector_id},
-            {"$push": {"logs": log_data}}
+            {"$push": {"logs": log}}
         )
 
         return success_response("/send_image", "success")
@@ -107,6 +112,10 @@ def get_detector_config(detector_id):
             if det["detector_id"] == detector_id:
                 config = det["detector_config"]
 
+        config["quality"] = 12
+        config["resolution"] = 5
+        config["flash_time"] = 500
+        config["timeout"] = 10000
         return config
     except BaseException as err:
         return error_response("/get_detector_config", f"Unexpected {err=}, {type(err)=}")

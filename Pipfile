@@ -12,6 +12,7 @@ certifi = "*"
 pyjwt = "*"
 opencv-python = "*"
 ultralytics = "*"
+google-cloud-vision = "*"
 
 [dev-packages]
 
