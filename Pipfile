@@ -10,6 +10,8 @@ flask-cors = "*"
 pymongo = "*"
 certifi = "*"
 pyjwt = "*"
+opencv-python = "*"
+ultralytics = "*"
 
 [dev-packages]
 
