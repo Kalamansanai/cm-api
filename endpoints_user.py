@@ -43,7 +43,7 @@ def get_user():
     try:
         user = cm_utils.auth_token()
         if user is None:
-            return error_response("/set_config", "no user signed in")
+            return error_response("/get_user", "no user signed in")
 
         user = mongo.users.find_one({"email": user["email"]})
 
