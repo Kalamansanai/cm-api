@@ -6,6 +6,9 @@ import certifi
 from cm_config import DB_NAME
 
 from cm_config import PRODUCTION, MONGO_URI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
