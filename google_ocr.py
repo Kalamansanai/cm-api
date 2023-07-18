@@ -1,7 +1,7 @@
 from cm_config import Logger
 from google.cloud import vision
 import os
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'library/peppy-webbing-392810-d7e24dc3aecf.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'library/peppy-webbing-392810-9ad9668d29a6.json'
 
 
 def detect_text(img_content, char_num):
@@ -16,6 +16,8 @@ def detect_text(img_content, char_num):
     for text in texts:
         if text != None and (len(text.description) == char_num):
             result = text.description
+        Logger.info(
+            f"text found: {text.description} --- length: {len(text.description)}")
 
     if response.error.message:
         raise Exception(
@@ -24,4 +26,5 @@ def detect_text(img_content, char_num):
                 response.error.message)
         )
 
+    Logger.info(f"detected text: {result}")
     return result

@@ -28,9 +28,9 @@ def generate_mock_data():
 def send_image(detector_id):
     try:
         img = request.files["image"]
-        img_byte = img.read()
+        img = Image.open(img)
 
-        log_data = detect_text(img_byte, 8)
+        log_data = detector.detect(np.array(img), 8, 3)
 
         if log_data == None:
             return success_response("send_image", "success_none")

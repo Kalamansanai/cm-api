@@ -1,8 +1,12 @@
-import cv2
 import random
-from ultralytics import YOLO
+
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+from google.cloud import vision
+from PIL import Image
+from ultralytics import YOLO
+
 from google_ocr import detect_text
 
 
@@ -30,7 +34,10 @@ class Detector:
         return imgs
 
     def detect_numbers(self, img, length, decimal):
-        return detect_text(img, length)
+        _, im_buf_arr = cv2.imencode(".jpg", img)
+        byte_im = im_buf_arr.tobytes()
+
+        return detect_text(byte_im, length)
 
     def rnd(self, digits, dec):
         min_value = 10 ** (digits - 1)
