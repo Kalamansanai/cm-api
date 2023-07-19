@@ -46,14 +46,6 @@ def send_image(detector_id):
         return error_response("/send_image", f"Unexpected {err=}, {type(err)=}")
 
 
-@app.route("/get_config")
-def get_config():
-    try:
-        return success_response("/get_config", DETECTOR_CONFIG)
-    except BaseException as err:
-        return error_response("/get_config", f"Unexpected {err=}, {type(err)=}")
-
-
 @app.route("/set_config")
 def set_config():
     try:
@@ -112,10 +104,8 @@ def get_detector_config(detector_id):
             if det["detector_id"] == detector_id:
                 config = det["detector_config"]
 
-        config["quality"] = 12
-        config["resolution"] = 5
-        config["flash_time"] = 500
-        config["timeout"] = 10000
+        config.update(DETECTOR_CONFIG)
+
         return config
     except BaseException as err:
         return error_response("/get_detector_config", f"Unexpected {err=}, {type(err)=}")
