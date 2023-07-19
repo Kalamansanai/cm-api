@@ -49,6 +49,25 @@ def create_set_cookie_response(user: dict):
     return response
 
 
+def set_cookie_time(time):
+
+    token = request.cookies.get(JWT_COOKIE_KEY)
+
+    response = make_response(success_response(
+        "user_logout", token
+    ))
+
+    response.set_cookie(
+        key=JWT_COOKIE_KEY,
+        value=token,
+        max_age=0,
+        secure=True,
+        samesite="None"
+    )
+
+    return response
+
+
 def create_delete_cookie_response():
     response = make_response(success_response(
         "/create_delete_cookie_token", "successfully logged out"))
