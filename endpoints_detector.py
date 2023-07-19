@@ -10,11 +10,12 @@ from cm_config import IMAGE_PATH, DETECTOR_CONFIG, Logger
 from cm_types import success_response, error_response
 import cm_utils
 import random
-from datetime import datetime
-import numpy as np
-
 from detector import Detector
 from google_ocr import detect_text
+from cm_detector import id_uniqueness
+
+from datetime import datetime
+import numpy as np
 
 
 detector = Detector("library/plates.pt", "library/plates.pt")
@@ -71,6 +72,9 @@ def add_detector_to_user():
 
         (detector_id, type, detector_name) = cm_utils.validate_json(
             ["detector_id", "type", "detector_name"])
+
+        if id_uniqueness(user_data["email"], detector_id):
+            return error_response("/add_detector", "this detector id is already registered")
 
         log_id = mongo.logs.insert_one({
             "detector_id": detector_id,
