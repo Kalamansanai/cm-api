@@ -1,10 +1,12 @@
 from datetime import datetime
 
-from flask import request
+from flask import request, send_file
 from startup import app, mongo
 
 from PIL import Image
-import PIL
+import tempfile
+import os
+import pandas as pd
 
 from cm_config import IMAGE_PATH, DETECTOR_CONFIG, Logger
 from cm_types import success_response, error_response
@@ -146,3 +148,24 @@ def delete_detector(detector_id):
         return success_response("/delete_detector", "detector deleted successfully")
     except BaseException as err:
         return error_response("/delete_detector", f"Unexpected {err=}, {type(err)=}")
+
+
+@app.route("/detector/<detector_id>/export")
+def export_detector_log(detector_id):
+    try:
+        logs = mongo.logs.find_one({"detector_id": detector_id})
+
+        logs_data = {key: value for key,
+                     value in logs.items() if key == "logs"}
+
+        logs_table = pd.DataFrame.from_records(logs_data)
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            tmppath = os.path.join(tmpdirname, f"{str(datetime.now())}.csv")
+            with open(tmppath, 'w') as tmpfile:
+                logs_table.to_csv(tmpfile.name, index=False)
+                mimetype = "text/csv"
+
+            return send_file(tmppath, mimetype=mimetype, as_attachment=True)
+    except BaseException as err:
+        return error_response("/export_detector_log", f"Unexpected {err=}, {type(err)=}")

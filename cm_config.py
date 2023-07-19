@@ -15,7 +15,7 @@ IMAGE_PATH = "images"
 
 DETECTOR_CONFIG = {
     "quality": 12,
-    "resolution": 9,
+    "resolution": 5,
     "flash_time": 500,
     "timeout": 10000
 }
