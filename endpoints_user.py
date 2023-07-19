@@ -5,6 +5,7 @@ from cm_mongo import test_db as _test_db
 from startup import mongo
 from cm_config import Logger
 import cm_utils
+from datetime import datetime
 
 
 @app.route("/test_db")
@@ -95,7 +96,8 @@ def logout():
         if user is None:
             return error_response("/logout", "no user signed in")
 
-        response = cm_utils.create_delete_cookie_response()
+        response = cm_utils.set_cookie_time(datetime.now())
+        # response = cm_utils.create_delete_cookie_response()
         return response
     except BaseException as err:
         return error_response("/logout", f"Unexpected {err=}, {type(err)=}")
