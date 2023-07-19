@@ -14,7 +14,7 @@ import cm_utils
 import random
 from detector import Detector
 from google_ocr import detect_text
-from cm_detector import id_uniqueness
+from cm_detector import id_uniqueness, check_state
 
 from datetime import datetime
 import numpy as np
@@ -79,7 +79,8 @@ def add_detector_to_user():
             "detector_id": detector_id,
             "detector_name": detector_name,
             "detector_config": {},
-            "type": type
+            "type": type,
+            "state": "init"
         }
 
         Logger.info(new_detector)
@@ -169,3 +170,9 @@ def export_detector_log(detector_id):
             return send_file(tmppath, mimetype=mimetype, as_attachment=True)
     except BaseException as err:
         return error_response("/export_detector_log", f"Unexpected {err=}, {type(err)=}")
+
+
+@app.route("/detector/<detector_id>/check_state")
+def detector_check_state(detector_id):
+    changed = check_state(detector_id)
+    return success_response("asd", changed)
