@@ -1,4 +1,4 @@
-from cm_config import PLOT_COLOR, Logger
+from cm_config import PLOT_COLOR
 
 
 def line_data(data: dict):
