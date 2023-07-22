@@ -64,13 +64,13 @@ def add_detector_to_user():
         if user_data is None:
             return error_response("/add_detector", "no user signed in")
 
-        (detector_id, type, detector_name) = cm_utils.validate_json(
-            ["detector_id", "type", "detector_name"])
+        (detector_id, type, detector_name, cost) = cm_utils.validate_json(
+            ["detector_id", "type", "detector_name", "cost"])
 
         if id_uniqueness(user_data["email"], detector_id):
             return error_response("/add_detector", "this detector id is already registered")
 
-        log_id = mongo.logs.insert_one({
+        mongo.logs.insert_one({
             "detector_id": detector_id,
             "logs": []
         }).inserted_id
@@ -79,7 +79,8 @@ def add_detector_to_user():
             "detector_id": detector_id,
             "detector_name": detector_name,
             "detector_config": {},
-            "type": type
+            "type": type,
+            "cost": cost
         }
 
         Logger.info(new_detector)
@@ -102,10 +103,7 @@ def get_detector_config(detector_id):
             {"detectors.detector_id": detector_id}
         )
 
-        detectors = {key: value for key,
-                     value in user.items() if key in ["detectors"]}
-
-        detectors = detectors["detectors"]
+        detectors = user["detectors"]
         for det in detectors:
             if det["detector_id"] == detector_id:
                 config = det["detector_config"]
