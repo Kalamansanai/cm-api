@@ -20,6 +20,7 @@ import numpy as np
 
 detector = Detector("library/plates.pt", "library/plates.pt")
 
+
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):
     img = request.files["image"]
@@ -45,8 +46,9 @@ def add_detector_to_user():
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-        (detector_id, type, detector_name, cost) = cm_utils.validate_json(
-            ["detector_id", "type", "detector_name", "cost"])
+    (detector_id, type, detector_name, cost) = cm_utils.validate_json(
+        ["detector_id", "type", "detector_name", "cost"]
+    )
 
     if id_uniqueness(user_data["email"], detector_id):
         return error_response("/add_detector", "this detector id is already registered")
@@ -57,12 +59,12 @@ def add_detector_to_user():
     }).inserted_id
 
     new_detector = {
-      "detector_id": detector_id,
-      "detector_name": detector_name,
-      "detector_config": {},
-      "type": type,
-      "state": "init",
-      "cost": cost
+        "detector_id": detector_id,
+        "detector_name": detector_name,
+        "detector_config": {},
+        "type": type,
+        "state": "init",
+        "cost": cost
     }
 
     mongo.users.update_one(
@@ -131,11 +133,11 @@ def export_detector_log(detector_id):
         with open(tmppath, 'w') as tmpfile:
             logs_table.to_csv(tmpfile.name, index=False)
             mimetype = "text/csv"
-    
+
     return send_file(tmppath, mimetype=mimetype, as_attachment=True)
+
 
 @app.route("/detector/<detector_id>/check_state")
 def detector_check_state(detector_id):
     changed = check_state(detector_id)
     return success_response("/detectot/check_state", changed)
-
