@@ -12,13 +12,13 @@ from cm_config import DETECTOR_CONFIG
 from cm_types import success_response, error_response
 import cm_utils
 from detector import Detector
-from cm_detector import id_uniqueness
+from google_ocr import detect_text
+from cm_detector import id_uniqueness, check_state
 
 from datetime import datetime
 import numpy as np
 
 detector = Detector("library/plates.pt", "library/plates.pt")
-
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):
@@ -57,10 +57,11 @@ def add_detector_to_user():
     }).inserted_id
 
     new_detector = {
-        "detector_id": detector_id,
-        "detector_name": detector_name,
-        "detector_config": {},
-        "type": type
+      "detector_id": detector_id,
+      "detector_name": detector_name,
+      "detector_config": {},
+      "type": type,
+      "state": "init"
     }
 
     mongo.users.update_one(
@@ -129,5 +130,11 @@ def export_detector_log(detector_id):
         with open(tmppath, 'w') as tmpfile:
             logs_table.to_csv(tmpfile.name, index=False)
             mimetype = "text/csv"
+    
+    return send_file(tmppath, mimetype=mimetype, as_attachment=True)
 
-        return send_file(tmppath, mimetype=mimetype, as_attachment=True)
+@app.route("/detector/<detector_id>/check_state")
+def detector_check_state(detector_id):
+    changed = check_state(detector_id)
+    return success_response("/detectot/check_state", changed)
+
