@@ -1,10 +1,7 @@
 import random
 
 import cv2
-import matplotlib.pyplot as plt
 import numpy as np
-from google.cloud import vision
-from PIL import Image
 from ultralytics import YOLO
 
 from google_ocr import detect_text

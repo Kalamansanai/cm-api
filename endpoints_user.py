@@ -1,16 +1,9 @@
-from flask import make_response, request
+from flask import request
 from startup import app
 from cm_types import success_response, error_response, user_data
-from cm_mongo import test_db as _test_db
 from startup import mongo
-from cm_config import Logger
 import cm_utils
 from datetime import datetime
-
-
-@app.route("/test_db")
-def test_db():
-    return success_response("/get_data", _test_db())
 
 
 @app.route("/register", methods=["POST"])
@@ -53,7 +46,6 @@ def get_user():
         user_data = {key: value for key,
                      value in user.items() if key not in ignored_fields}
 
-        Logger.info(user_data)
         return success_response("/get_user", user_data)
     except BaseException as err:
         return error_response("/get_user", f"Unexpected {err=}, {type(err)=}")
@@ -62,6 +54,10 @@ def get_user():
 @app.route("/user", methods=["DELETE"])
 def delete_users():
     try:
+        user = cm_utils.auth_token()
+        if user is None:
+            return error_response("/get_user", "no user signed in")
+
         name = request.json["name"]
         mongo.users.delete_one({"name": name})
         return success_response("/delete_user", "User successfully deleted.")
@@ -97,7 +93,6 @@ def logout():
             return error_response("/logout", "no user signed in")
 
         response = cm_utils.set_cookie_time(datetime.now())
-        # response = cm_utils.create_delete_cookie_response()
         return response
     except BaseException as err:
         return error_response("/logout", f"Unexpected {err=}, {type(err)=}")

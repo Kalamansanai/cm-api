@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
 from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 import certifi
 from cm_config import DB_NAME
 
