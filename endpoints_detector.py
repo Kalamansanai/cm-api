@@ -45,8 +45,8 @@ def add_detector_to_user():
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-    (detector_id, type, detector_name) = cm_utils.validate_json(
-        ["detector_id", "type", "detector_name"])
+        (detector_id, type, detector_name, cost) = cm_utils.validate_json(
+            ["detector_id", "type", "detector_name", "cost"])
 
     if id_uniqueness(user_data["email"], detector_id):
         return error_response("/add_detector", "this detector id is already registered")
@@ -61,7 +61,8 @@ def add_detector_to_user():
       "detector_name": detector_name,
       "detector_config": {},
       "type": type,
-      "state": "init"
+      "state": "init",
+      "cost": cost
     }
 
     mongo.users.update_one(
