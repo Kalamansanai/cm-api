@@ -1,7 +1,7 @@
 from cm_config import Logger
 from google.cloud import vision
 import os
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'library/peppy-webbing-392810-9ad9668d29a6.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'library/.json'
 
 
 def detect_text(img_content, char_num):

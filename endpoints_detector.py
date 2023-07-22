@@ -8,12 +8,10 @@ import tempfile
 import os
 import pandas as pd
 
-from cm_config import IMAGE_PATH, DETECTOR_CONFIG, Logger
+from cm_config import DETECTOR_CONFIG
 from cm_types import success_response, error_response
 import cm_utils
-import random
 from detector import Detector
-from google_ocr import detect_text
 from cm_detector import id_uniqueness
 
 from datetime import datetime
@@ -21,10 +19,6 @@ import numpy as np
 
 
 detector = Detector("library/plates.pt", "library/plates.pt")
-
-
-def generate_mock_data():
-    return {"timestamp": datetime.now().timestamp(), "value": random.random(0, 10)}
 
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
@@ -47,14 +41,6 @@ def send_image(detector_id):
         return success_response("/send_image", "success")
     except BaseException as err:
         return error_response("/send_image", f"Unexpected {err=}, {type(err)=}")
-
-
-@app.route("/set_config")
-def set_config():
-    try:
-        return success_response("/set_config", "success")
-    except BaseException as err:
-        return error_response("/set_config", f"Unexpected {err=}, {type(err)=}")
 
 
 @app.route("/add_detector", methods=["POST"])
@@ -82,8 +68,6 @@ def add_detector_to_user():
             "type": type,
             "cost": cost
         }
-
-        Logger.info(new_detector)
 
         mongo.users.update_one(
             {'email': user_data["email"]},
@@ -118,6 +102,10 @@ def get_detector_config(detector_id):
 @app.route("/set_detector_config/<detector_id>", methods=["POST"])
 def set_detector_config(detector_id):
     try:
+        user_data = cm_utils.auth_token()
+        if user_data is None:
+            return error_response("/add_detector", "no user signed in")
+
         (new_config,) = cm_utils.validate_json(["new_config"])
 
         mongo.users.update_one(
@@ -153,10 +141,7 @@ def export_detector_log(detector_id):
     try:
         logs = mongo.logs.find_one({"detector_id": detector_id})
 
-        logs_data = {key: value for key,
-                     value in logs.items() if key == "logs"}
-
-        logs_table = pd.DataFrame.from_records(logs_data)
+        logs_table = pd.DataFrame.from_records(logs["logs"])
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             tmppath = os.path.join(tmpdirname, f"{str(datetime.now())}.csv")
