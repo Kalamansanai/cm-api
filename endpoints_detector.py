@@ -22,138 +22,119 @@ detector = Detector("library/plates.pt", "library/plates.pt")
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):
-    try:
-        img = request.files["image"]
-        img = Image.open(img)
+    img = request.files["image"]
+    img = Image.open(img)
 
-        log_data = detector.detect(np.array(img), 8, 3)
+    log_data = detector.detect(np.array(img), 8, 3)
 
-        if log_data == None:
-            return success_response("send_image", "success_none")
+    if log_data == None:
+        return success_response("send_image", "success_none")
 
-        log = {"timestamp": datetime.now().timestamp(), "value": int(log_data)}
-        mongo.logs.find_one_and_update(
-            {"detector_id": detector_id},
-            {"$push": {"logs": log}}
-        )
+    log = {"timestamp": datetime.now(), "value": int(log_data)}
+    mongo.logs.find_one_and_update(
+        {"detector_id": detector_id},
+        {"$push": {"logs": log}}
+    )
 
-        return success_response("/send_image", "success")
-    except BaseException as err:
-        return error_response("/send_image", f"Unexpected {err=}, {type(err)=}")
+    return success_response("/send_image", "success")
 
 
 @app.route("/add_detector", methods=["POST"])
 def add_detector_to_user():
-    try:
-        user_data = cm_utils.auth_token()
-        if user_data is None:
-            return error_response("/add_detector", "no user signed in")
+    user_data = cm_utils.auth_token()
+    if user_data is None:
+        return error_response("/add_detector", "no user signed in")
 
-        (detector_id, type, detector_name) = cm_utils.validate_json(
-            ["detector_id", "type", "detector_name"])
+    (detector_id, type, detector_name) = cm_utils.validate_json(
+        ["detector_id", "type", "detector_name"])
 
-        if id_uniqueness(user_data["email"], detector_id):
-            return error_response("/add_detector", "this detector id is already registered")
+    if id_uniqueness(user_data["email"], detector_id):
+        return error_response("/add_detector", "this detector id is already registered")
 
-        mongo.logs.insert_one({
-            "detector_id": detector_id,
-            "logs": []
-        }).inserted_id
+    mongo.logs.insert_one({
+        "detector_id": detector_id,
+        "logs": []
+    }).inserted_id
 
-        new_detector = {
-            "detector_id": detector_id,
-            "detector_name": detector_name,
-            "detector_config": {},
-            "type": type,
-            "state": "init"
-        }
+    new_detector = {
+      "detector_id": detector_id,
+      "detector_name": detector_name,
+      "detector_config": {},
+      "type": type,
+      "state": "init"
+    }
 
-        mongo.users.update_one(
-            {'email': user_data["email"]},
-            {'$push': {"detectors": new_detector}}
-        )
+    mongo.users.update_one(
+        {'email': user_data["email"]},
+        {'$push': {"detectors": new_detector}}
+    )
 
-        return success_response("/add_detector", "detector added successfully")
-
-    except BaseException as err:
-        return error_response("/add_detector", f"Unexpected {err=}, {type(err)=}")
+    return success_response("/add_detector", "detector added successfully")
 
 
 @app.route("/get_detector_config/<detector_id>")
 def get_detector_config(detector_id):
-    try:
-        user = mongo.users.find_one(
-            {"detectors.detector_id": detector_id}
-        )
+    user = mongo.users.find_one(
+        {"detectors.detector_id": detector_id}
+    )
 
-        detectors = user["detectors"]
-        for det in detectors:
-            if det["detector_id"] == detector_id:
-                config = det["detector_config"]
+    detectors = user["detectors"]
+    for det in detectors:
+        if det["detector_id"] == detector_id:
+            config = det["detector_config"]
 
-        config.update(DETECTOR_CONFIG)
+    config.update(DETECTOR_CONFIG)
 
-        return config
-    except BaseException as err:
-        return error_response("/get_detector_config", f"Unexpected {err=}, {type(err)=}")
+    return config
 
 
 @app.route("/set_detector_config/<detector_id>", methods=["POST"])
 def set_detector_config(detector_id):
-    try:
-        user_data = cm_utils.auth_token()
-        if user_data is None:
-            return error_response("/add_detector", "no user signed in")
+    user_data = cm_utils.auth_token()
+    if user_data is None:
+        return error_response("/add_detector", "no user signed in")
 
-        (new_config,) = cm_utils.validate_json(["new_config"])
+    (new_config,) = cm_utils.validate_json(["new_config"])
 
-        mongo.users.update_one(
-            {"detectors.detector_id": detector_id},
-            {"$set": {"detectors.$.detector_config": new_config}}
-        )
+    mongo.users.update_one(
+        {"detectors.detector_id": detector_id},
+        {"$set": {"detectors.$.detector_config": new_config}}
+    )
 
-        return success_response("/set_detector_config", "config updates successfully")
-    except BaseException as err:
-        return error_response("/set_detector_config", f"Unexpected {err=}, {type(err)=}")
+    return success_response("/set_detector_config", "config updates successfully")
 
 
 @app.route("/detector/<detector_id>", methods=["DELETE"])
 def delete_detector(detector_id):
-    try:
-        user_data = cm_utils.auth_token()
-        if user_data is None:
-            return error_response("/add_detector", "no user signed in")
+    user_data = cm_utils.auth_token()
+    if user_data is None:
+        return error_response("/add_detector", "no user signed in")
 
-        mongo.logs.delete_one({"detector_id": detector_id})
+    mongo.logs.delete_one({"detector_id": detector_id})
 
-        mongo.users.update_one(
-            {"detectors.detector_id": detector_id},
-            {"$pull": {"detectors": {"detector_id": detector_id}}})
+    mongo.users.update_one(
+        {"detectors.detector_id": detector_id},
+        {"$pull": {"detectors": {"detector_id": detector_id}}})
 
-        return success_response("/delete_detector", "detector deleted successfully")
-    except BaseException as err:
-        return error_response("/delete_detector", f"Unexpected {err=}, {type(err)=}")
+    return success_response("/delete_detector", "detector deleted successfully")
 
 
 @app.route("/detector/<detector_id>/export")
 def export_detector_log(detector_id):
-    try:
-        logs = mongo.logs.find_one({"detector_id": detector_id})
+    logs = mongo.logs.find_one({"detector_id": detector_id})
 
-        logs_table = pd.DataFrame.from_records(logs["logs"])
+    logs_table = pd.DataFrame.from_records(logs["logs"])
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            tmppath = os.path.join(tmpdirname, f"{str(datetime.now())}.csv")
-            with open(tmppath, 'w') as tmpfile:
-                logs_table.to_csv(tmpfile.name, index=False)
-                mimetype = "text/csv"
-
-            return send_file(tmppath, mimetype=mimetype, as_attachment=True)
-    except BaseException as err:
-        return error_response("/export_detector_log", f"Unexpected {err=}, {type(err)=}")
-
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        tmppath = os.path.join(tmpdirname, f"{str(datetime.now())}.csv")
+        with open(tmppath, 'w') as tmpfile:
+            logs_table.to_csv(tmpfile.name, index=False)
+            mimetype = "text/csv"
+    
+    return send_file(tmppath, mimetype=mimetype, as_attachment=True)
 
 @app.route("/detector/<detector_id>/check_state")
 def detector_check_state(detector_id):
     changed = check_state(detector_id)
-    return success_response("asd", changed)
+    return success_response("/detectot/check_state", changed)
+
