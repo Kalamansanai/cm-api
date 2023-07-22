@@ -17,6 +17,7 @@ from cm_detector import id_uniqueness, check_state
 
 from datetime import datetime
 import numpy as np
+from bson.objectid import ObjectId
 
 detector = Detector("library/plates.pt", "library/plates.pt")
 
@@ -68,7 +69,7 @@ def add_detector_to_user():
     }
 
     mongo.users.update_one(
-        {'email': user_data["email"]},
+        {"_id": ObjectId(user_data["id"])},
         {'$push': {"detectors": new_detector}}
     )
 
@@ -116,7 +117,7 @@ def delete_detector(detector_id):
     mongo.logs.delete_one({"detector_id": detector_id})
 
     mongo.users.update_one(
-        {"detectors.detector_id": detector_id},
+        {"_id": ObjectId(user_data["id"])},
         {"$pull": {"detectors": {"detector_id": detector_id}}})
 
     return success_response("/delete_detector", "detector deleted successfully")
@@ -140,4 +141,4 @@ def export_detector_log(detector_id):
 @app.route("/detector/<detector_id>/check_state")
 def detector_check_state(detector_id):
     changed = check_state(detector_id)
-    return success_response("/detectot/check_state", changed)
+    return success_response("/detector/check_state", changed)

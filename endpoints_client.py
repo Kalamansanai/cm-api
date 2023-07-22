@@ -1,3 +1,5 @@
+from bson.objectid import ObjectId
+
 from startup import app, mongo
 from cm_types import error_response, success_response
 import cm_utils
@@ -22,7 +24,7 @@ def get_user_pie():
         return error_response("/get_user_pie", "no user signed in")
 
     user = mongo.users.find_one(
-        {"email": user_data["email"]}
+        {"_id": ObjectId(user_data["id"])}
     )
 
     return success_response("get_user_pie", prepare_piechart_data(user))
