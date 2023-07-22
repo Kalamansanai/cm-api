@@ -32,7 +32,7 @@ def send_image(detector_id):
         if log_data == None:
             return success_response("send_image", "success_none")
 
-        log = {"timestamp": datetime.now().timestamp(), "value": int(log_data)}
+        log = {"timestamp": datetime.now(), "value": int(log_data)}
         mongo.logs.find_one_and_update(
             {"detector_id": detector_id},
             {"$push": {"logs": log}}
