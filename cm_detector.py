@@ -1,4 +1,6 @@
+from bson import ObjectId
 from startup import mongo
+from pymongo import ReturnDocument
 from datetime import datetime
 
 
@@ -16,28 +18,39 @@ def id_uniqueness(user_email, detector_id):
     return False
 
 
-def check_state(detector_id):
-    # TODO: refactor this, this func needs to be used in several places in the code,
-    # so its need to be as optimal as it can (now it has two db query)
-    logs_obj = mongo.logs.find_one(
-        {"detector_id": detector_id}
-    )
+def check_and_update_detectors_state(user_from_cookie):
+    user = mongo.users.find_one({"_id": ObjectId(user_from_cookie["id"])})
 
-    user = mongo.users.find_one(
-        {"detectors.detector_id": detector_id}
-    )
+    updated = False
+    updated_detectors = []
 
-    for det in user["detectors"]:
-        if det["detector_id"] == detector_id:
-            photo_time = det["detector_config"]["delay"]
+    for detector in user["detectors"]:
+        if "delay" not in detector["detector_config"].keys():
+            updated_detectors.append(detector)
+            continue
 
-    last_log = logs_obj["logs"][-1]
-    delay_time = photo_time * 3600 * 1000
-
-    if datetime.now().timestamp() - last_log["timestamp"] > delay_time:
-        mongo.users.update_one(
-            {"detectors.detector_id": detector_id},
-            {"$set": {"detectors.$.state": "sleep"}}
+        # TODO: if the detector_id is the _id: ObjectId, then its good ig
+        logs_obj = mongo.logs.find_one(
+            {"detector_id": detector["detector_id"]}
         )
-        return True
-    return False
+
+        photo_time = detector["detector_config"]["delay"]
+
+        last_log = logs_obj["logs"][-1]
+        delay_time = photo_time * 0.01 * 3600 * 1000
+
+        if datetime.now().timestamp() - last_log["timestamp"].timestamp() > delay_time:
+            updated = True
+            if detector["state"] != "sleep":
+                detector["state"] = "sleep"
+        updated_detectors.append(detector)
+
+    if updated:
+        updated_user = mongo.users.find_one_and_update(
+            {"_id": ObjectId(user_from_cookie["id"])},
+            {"$set": {"detectors": updated_detectors}},
+            return_document=ReturnDocument.AFTER
+        )
+        return updated_user
+
+    return user

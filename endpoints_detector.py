@@ -12,8 +12,7 @@ from cm_config import DETECTOR_CONFIG
 from cm_types import success_response, error_response
 import cm_utils
 from detector import Detector
-from google_ocr import detect_text
-from cm_detector import id_uniqueness, check_state
+from cm_detector import check_and_update_detectors_state, id_uniqueness
 
 from datetime import datetime
 import numpy as np
@@ -140,5 +139,5 @@ def export_detector_log(detector_id):
 
 @app.route("/detector/<detector_id>/check_state")
 def detector_check_state(detector_id):
-    changed = check_state(detector_id)
+    changed = check_and_update_detectors_state(detector_id)
     return success_response("/detector/check_state", changed)
