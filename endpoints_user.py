@@ -1,10 +1,10 @@
 from flask import request
+from cm_detector import check_and_update_detectors_state
 from startup import app
 from cm_types import success_response, error_response, user_data
 from startup import mongo
 import cm_utils
 from datetime import datetime
-from bson.objectid import ObjectId
 
 
 @app.route("/register", methods=["POST"])
@@ -36,7 +36,7 @@ def get_user():
     if user is None:
         return error_response("/get_user", "no user signed in")
 
-    user = mongo.users.find_one({"_id": ObjectId(user["id"])})
+    user = check_and_update_detectors_state(user)
 
     ignored_fields = ["_id", "password_hash",
                       "password_salt", "email_verification_token"]
