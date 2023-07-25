@@ -26,7 +26,18 @@ def send_image(detector_id):
     img = request.files["image"]
     img = Image.open(img)
 
-    log_data = detector.detect(np.array(img), 8, 3)
+    user = mongo.users.find_one(
+        {"detectors.detector_id": detector_id}
+    )
+
+    detectors = user["detectors"]
+    for det in detectors:
+        if det["detector_id"] == detector_id:
+            config = det["detector_config"]
+
+    number_length, coma_position = config["charNum"], config["comaPosition"]
+
+    log_data = detector.detect(np.array(img), number_length, coma_position)
 
     if log_data == None:
         return success_response("send_image", "success_none")
