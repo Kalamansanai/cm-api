@@ -34,6 +34,10 @@ def check_and_update_detectors_state(user_from_cookie):
             {"detector_id": detector["detector_id"]}
         )
 
+        if len(logs_obj["logs"]) < 2:
+            updated_detectors.append(detector)
+            continue
+
         photo_time = detector["detector_config"]["delay"]
 
         last_log = logs_obj["logs"][-1]

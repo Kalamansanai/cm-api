@@ -1,4 +1,4 @@
-from flask import request
+from flask import abort, request
 from cm_detector import check_and_update_detectors_state
 from startup import app
 from cm_types import success_response, error_response, user_data
@@ -34,7 +34,7 @@ def add_user():
 def get_user():
     user = cm_utils.auth_token()
     if user is None:
-        return error_response("/get_user", "no user signed in")
+        abort(401)
 
     user = check_and_update_detectors_state(user)
 
