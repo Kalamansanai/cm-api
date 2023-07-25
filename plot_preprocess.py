@@ -1,22 +1,39 @@
-from cm_config import PLOT_COLOR
+from cm_config import PLOT_COLOR, TYPE_COLORS
 import datetime
 from startup import mongo
 import pandas as pd
 
 
+def reformat(data: dict, type):
+    reformatted_data = []
+
+    if type == "line":
+        reformatted_data.append({
+            "id": data["detector_id"],
+            "color": PLOT_COLOR,
+            "data": [{
+                "x": log["timestamp"],
+                "y": log["value"]
+            } for log in data["logs"]]
+        })
+    elif type == "pie_cost":
+        for key in data.keys():
+            reformatted_data.append(
+                {
+                    "id": key,
+                    "label": key,
+                    "value": data[key],
+                    "color": TYPE_COLORS[key]
+                }
+            )
+
+    return reformatted_data
+
+
 def prepare_lineplot_data(data: dict):
-    new_data = []
+    reformatted_data = reformat(data, "line")
 
-    new_data.append({
-        "id": data["detector_id"],
-        "color": PLOT_COLOR,
-        "data": [{
-            "x": log["timestamp"],
-            "y": log["value"]
-        } for log in data["logs"]]
-    })
-
-    return new_data
+    return reformatted_data
 
 
 def prepare_piechart_data(user: dict):
@@ -24,15 +41,17 @@ def prepare_piechart_data(user: dict):
     for detector in user["detectors"]:
         if detector["type"] in pie_data.keys():
             pie_data[detector["type"]] = pie_data[detector["type"]] + \
-                float(structure_detector_pie_data(detector))
+                float(_structure_detector_pie_data(detector))
         else:
             pie_data[detector["type"]] = float(
-                structure_detector_pie_data(detector))
+                _structure_detector_pie_data(detector))
 
-    return pie_data
+    reformatted = reformat(pie_data, "pie_cost")
+
+    return reformatted
 
 
-def structure_detector_pie_data(detector):
+def _structure_detector_pie_data(detector):
     data = mongo.logs.find_one(
         {"detector_id": detector["detector_id"]}
     )["logs"]

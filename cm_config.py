@@ -59,3 +59,9 @@ class Logger:
 
 
 PLOT_COLOR = "hsl(101, 70%, 50%)"
+
+TYPE_COLORS = {
+    "electricity": "hsl(104, 70%, 50%)",
+    "water": "hsl(162, 70%, 50%)",
+    "gas": "hsl(291, 70%, 50%)",
+}
