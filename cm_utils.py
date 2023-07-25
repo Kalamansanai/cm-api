@@ -4,7 +4,7 @@ from time import time
 from flask import abort, request, make_response
 import jwt
 
-from cm_config import JWT_SECRET, JWT_COOKIE_KEY
+from cm_config import JWT_SECRET, JWT_COOKIE_KEY, SESSION_PERSISTANCE_TIME
 from cm_types import success_response
 
 
@@ -45,7 +45,7 @@ def create_set_cookie_response(user: dict):
     response.set_cookie(
         key=JWT_COOKIE_KEY,
         value=token,
-        max_age=None,
+        max_age=SESSION_PERSISTANCE_TIME,
         secure=True,
         samesite="None"
     )
