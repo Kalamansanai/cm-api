@@ -148,7 +148,7 @@ def export_detector_log(detector_id):
             logs_table.to_csv(tmpfile.name, index=False)
             mimetype = "text/csv"
 
-    return send_file(tmppath, mimetype=mimetype, as_attachment=True)
+        return send_file(tmppath, mimetype=mimetype, as_attachment=True)
 
 
 @app.route("/detector/<detector_id>/check_state")
