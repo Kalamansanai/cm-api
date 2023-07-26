@@ -4,7 +4,7 @@ from time import time
 from flask import abort, request, make_response
 import jwt
 
-from cm_config import Logger, JWT_SECRET, JWT_COOKIE_KEY, SESSION_COOKIE_HTTPS_ONLY
+from cm_config import JWT_SECRET, JWT_COOKIE_KEY, SESSION_PERSISTANCE_TIME
 from cm_types import success_response
 
 
@@ -28,23 +28,46 @@ def utc_now():
 
 
 def create_set_cookie_response(user: dict):
-    user_data = {key: value for key,
-                 value in user.items() if key in ["_id", "creation_time", "name", "email"]}
 
-    # TODO: need to find out if the id is necessary
-    user_data["_id"] = str(user["_id"])
+    user_id_string = str(user["_id"])
+
+    user_data = {
+        "id": user_id_string,
+        "email": user["email"]
+    }
 
     token = jwt.encode(payload=user_data, key=JWT_SECRET)
 
     response = make_response(success_response(
         "create_set_cookie_response", token))
+
     # TODO: make the token persistent
     response.set_cookie(
         key=JWT_COOKIE_KEY,
         value=token,
-        max_age=None,
-        secure=SESSION_COOKIE_HTTPS_ONLY
+        max_age=SESSION_PERSISTANCE_TIME,
+        secure=True,
+        samesite="None"
     )
+    return response
+
+
+def set_cookie_time(time):
+
+    token = request.cookies.get(JWT_COOKIE_KEY)
+
+    response = make_response(success_response(
+        "set_cookie_time", token
+    ))
+
+    response.set_cookie(
+        key=JWT_COOKIE_KEY,
+        value=token,
+        max_age=0,
+        secure=True,
+        samesite="None"
+    )
+
     return response
 
 
