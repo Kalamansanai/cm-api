@@ -56,6 +56,9 @@ def _structure_detector_pie_data(detector):
         {"detector_id": detector["detector_id"]}
     )["logs"]
 
+    if data == []:
+        return 0
+
     current_month = datetime.datetime.now().month
 
     df = pd.DataFrame.from_dict(data)

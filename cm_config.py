@@ -28,7 +28,7 @@ LOG_PATH = (
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_COOKIE_KEY = "cm-user-token"
-SESSION_PERSISTANCE_TIME = 1800000  # 30 minutes
+SESSION_PERSISTANCE_TIME = 1800  # 30 minutes
 SESSION_COOKIE_HTTPS_ONLY = False
 SESSION_KEY_SALT = os.getenv("SESSION_KEY_SALT")
 
@@ -62,6 +62,6 @@ PLOT_COLOR = "hsl(101, 70%, 50%)"
 
 TYPE_COLORS = {
     "electricity": "hsl(104, 70%, 50%)",
-    "water": "hsl(162, 70%, 50%)",
-    "gas": "hsl(291, 70%, 50%)",
+    "water": "hsl(229, 70%, 50%)",
+    "gas": "hsl(344, 70%, 50%)"
 }

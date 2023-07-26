@@ -62,7 +62,7 @@ def add_detector_to_user():
     )
 
     if id_uniqueness(user_data["email"], detector_id):
-        return error_response("/add_detector", "this detector id is already registered")
+        return error_response("/add_detector", "A detector is already registered with this id !")
 
     mongo.logs.insert_one({
         "detector_id": detector_id,
@@ -91,6 +91,9 @@ def get_detector_config(detector_id):
     user = mongo.users.find_one(
         {"detectors.detector_id": detector_id}
     )
+
+    if user is None:
+        return error_response("/get_detector_config", "detector has not added to any user yet !")
 
     detectors = user["detectors"]
     for det in detectors:
