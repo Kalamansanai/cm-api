@@ -14,8 +14,11 @@ def validate(id, time, value, threshold=0.2):
         X.append(int(log["timestamp"].timestamp() * 1000))
         y.append(log["value"])
 
-    if len(X) < 5:
+    if len(X) < 2: # Can not do much with that
         return True
+
+    if value < y[-1]:
+        return False
 
     X = np.array(X)
     y = np.array(y)
@@ -23,7 +26,6 @@ def validate(id, time, value, threshold=0.2):
     model.fit(X.reshape(-1, 1), y)
 
     predicted_value = model.predict(np.array([[time]]))
-    print(predicted_value)
 
     diff = abs(value - predicted_value)
     average = (value + predicted_value) / 2
