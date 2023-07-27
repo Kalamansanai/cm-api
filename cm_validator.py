@@ -6,12 +6,17 @@ from sklearn.linear_model import LinearRegression
 model = LinearRegression()
 
 # TODO: Limit historical data.
+# NOTE: Ha megváltozik a detektálási intervallum, akkor nem pontos
 def validate(id, time, value, threshold=0.2):
     X = []
     y = []
     for log in mongo.logs.find_one({"detector_id": id})["logs"]:
         X.append(int(log["timestamp"].timestamp() * 1000))
         y.append(log["value"])
+
+    if len(X) < 5:
+        return True
+
     X = np.array(X)
     y = np.array(y)
 
