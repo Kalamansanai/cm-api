@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask import request, send_file
 from startup import app, mongo
+import time
 
 from PIL import Image
 import tempfile
@@ -17,6 +18,8 @@ from cm_detector import check_and_update_detectors_state, id_uniqueness
 from datetime import datetime
 import numpy as np
 from bson.objectid import ObjectId
+
+import cm_validator as V
 
 detector = Detector("library/plates.pt", "library/plates.pt")
 
@@ -39,7 +42,9 @@ def send_image(detector_id):
 
     log_data = detector.detect(np.array(img), number_length, coma_position)
 
-    if log_data == None:
+    is_valid = V.validate(detector_id, round(time.time() * 1000), log_data)
+
+    if log_data == None and is_valid:
         return success_response("send_image", "success_none")
 
     log = {"timestamp": datetime.now(), "value": int(log_data)}

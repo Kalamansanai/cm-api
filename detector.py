@@ -1,9 +1,6 @@
-import random
-
 import cv2
 import numpy as np
 from ultralytics import YOLO
-
 from google_ocr import detect_text
 
 
@@ -35,10 +32,3 @@ class Detector:
         byte_im = im_buf_arr.tobytes()
 
         return detect_text(byte_im, length)
-
-    def rnd(self, digits, dec):
-        min_value = 10 ** (digits - 1)
-        max_value = 10 ** digits - 1
-        dec = 10 ** dec
-        random_float = random.randint(min_value, max_value)
-        return random_float / dec

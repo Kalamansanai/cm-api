@@ -1,13 +1,16 @@
 from flask import Flask
 from flask_cors import CORS
 from pymongo.mongo_client import MongoClient
+
 import certifi
+
+from dotenv import load_dotenv
+load_dotenv()
+
 from cm_config import DB_NAME
 
 from cm_config import PRODUCTION, MONGO_URI
-from dotenv import load_dotenv
 
-load_dotenv()
 
 app = Flask(__name__)
 
