@@ -44,7 +44,7 @@ def send_image(detector_id):
 
     is_valid = V.validate(detector_id, round(time.time() * 1000), log_data)
 
-    if log_data == None and is_valid:
+    if log_data == None or not is_valid:
         return success_response("send_image", "success_none")
 
     log = {"timestamp": datetime.now(), "value": int(log_data)}
