@@ -36,19 +36,23 @@ def prepare_lineplot_data(data: dict):
     return reformatted_data
 
 
-def prepare_piechart_data(user: dict):
-    pie_data = {}
-    for detector in user["detectors"]:
-        if detector["type"] in pie_data.keys():
-            pie_data[detector["type"]] = pie_data[detector["type"]] + \
-                float(_structure_detector_pie_data(detector))
-        else:
-            pie_data[detector["type"]] = float(
-                _structure_detector_pie_data(detector))
+def prepare_piechart_data(user_id: str):
 
-    reformatted = reformat(pie_data, "pie_cost")
+    # TODO: refactor this for the new design
 
-    return reformatted
+    # pie_data = {}
+    # for detector in user["detectors"]:
+    #     if detector["type"] in pie_data.keys():
+    #         pie_data[detector["type"]] = pie_data[detector["type"]] + \
+    #             float(_structure_detector_pie_data(detector))
+    #     else:
+    #         pie_data[detector["type"]] = float(
+    #             _structure_detector_pie_data(detector))
+
+    # reformatted = reformat(pie_data, "pie_cost")
+
+    # return reformatted
+    return "not implemented"
 
 
 def _structure_detector_pie_data(detector):

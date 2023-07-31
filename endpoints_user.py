@@ -5,6 +5,7 @@ from cm_types import success_response, error_response, user_data
 from startup import mongo
 import cm_utils
 from datetime import datetime
+from bson.objectid import ObjectId
 
 
 @app.route("/register", methods=["POST"])
@@ -32,11 +33,12 @@ def add_user():
 
 @app.route("/user", methods=["GET"])
 def get_user():
-    user = cm_utils.auth_token()
-    if user is None:
+    user_cookie = cm_utils.auth_token()
+    if user_cookie is None:
         abort(401)
 
-    user = check_and_update_detectors_state(user)
+    user = mongo.users.find_one({"_id": ObjectId(user_cookie["id"])})
+    user["id"] = str(user["_id"])
 
     ignored_fields = ["_id", "password_hash",
                       "password_salt", "email_verification_token"]
@@ -48,6 +50,7 @@ def get_user():
 
 @app.route("/user", methods=["DELETE"])
 def delete_users():
+    # TODO: delete all of its detectors
     user = cm_utils.auth_token()
     if user is None:
         return error_response("/get_user", "no user signed in")
