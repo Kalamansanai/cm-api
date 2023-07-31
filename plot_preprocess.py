@@ -36,30 +36,26 @@ def prepare_lineplot_data(data: dict):
     return reformatted_data
 
 
-def prepare_piechart_data(user_id: str):
+def prepare_piechart_data(detectors):
 
     # TODO: refactor this for the new design
 
-    # pie_data = {}
-    # for detector in user["detectors"]:
-    #     if detector["type"] in pie_data.keys():
-    #         pie_data[detector["type"]] = pie_data[detector["type"]] + \
-    #             float(_structure_detector_pie_data(detector))
-    #     else:
-    #         pie_data[detector["type"]] = float(
-    #             _structure_detector_pie_data(detector))
+    pie_data = {}
+    for detector in detectors:
+        if detector["type"] in pie_data.keys():
+            pie_data[detector["type"]] = pie_data[detector["type"]] + \
+                float(_structure_detector_pie_data(detector))
+        else:
+            pie_data[detector["type"]] = float(
+                _structure_detector_pie_data(detector))
 
-    # reformatted = reformat(pie_data, "pie_cost")
+    reformatted = reformat(pie_data, "pie_cost")
 
-    # return reformatted
-    return "not implemented"
+    return reformatted
 
 
 def _structure_detector_pie_data(detector):
-    data = mongo.logs.find_one(
-        {"detector_id": detector["detector_id"]}
-    )["logs"]
-
+    data = detector["logs"]
     if data == []:
         return 0
 

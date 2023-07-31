@@ -24,7 +24,9 @@ def get_user_pie():
     if user_data is None:
         return error_response("/get_user_pie", "no user signed in")
 
-    return success_response("get_user_pie", prepare_piechart_data(user_data["id"]))
+    detectors = mongo.detectors.find({"user_id": user_data["id"]})
+
+    return success_response("get_user_pie", prepare_piechart_data(detectors))
 
 
 @app.route("/get_detectors_by_user/<user_id>", methods=["GET"])
