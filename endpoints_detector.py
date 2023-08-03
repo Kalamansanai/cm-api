@@ -21,7 +21,7 @@ from bson.objectid import ObjectId
 
 import cm_validator as V
 
-detector = Detector("library/plates.pt", "library/plates.pt")
+_detector = Detector("library/plates.pt", "library/plates.pt")
 
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
@@ -29,18 +29,14 @@ def send_image(detector_id):
     img = request.files["image"]
     img = Image.open(img)
 
-    user = mongo.users.find_one(
-        {"detectors.detector_id": detector_id}
+    detector = mongo.detectors.find_one(
+        {"detector_id": detector_id}
     )
-
-    detectors = user["detectors"]
-    for det in detectors:
-        if det["detector_id"] == detector_id:
-            config = det["detector_config"]
+    config = detector["detector_config"]
 
     number_length, coma_position = config["charNum"], config["comaPosition"]
 
-    log_data = detector.detect(np.array(img), number_length, coma_position)
+    log_data = _detector.detect(np.array(img), number_length, coma_position)
 
     is_valid = V.validate(detector_id, round(time.time() * 1000), log_data)
 
@@ -48,7 +44,7 @@ def send_image(detector_id):
         return success_response("send_image", "success_none")
 
     log = {"timestamp": datetime.now(), "value": int(log_data)}
-    mongo.logs.find_one_and_update(
+    mongo.detectors.find_one_and_update(
         {"detector_id": detector_id},
         {"$push": {"logs": log}}
     )
@@ -66,45 +62,37 @@ def add_detector_to_user():
         ["detector_id", "type", "detector_name", "cost"]
     )
 
-    if id_uniqueness(user_data["email"], detector_id):
+    if id_uniqueness(user_data["id"], detector_id):
         return error_response("/add_detector", "A detector is already registered with this id !")
-
-    mongo.logs.insert_one({
-        "detector_id": detector_id,
-        "logs": []
-    }).inserted_id
 
     new_detector = {
         "detector_id": detector_id,
+        "user_id": user_data["id"],
         "detector_name": detector_name,
         "detector_config": {},
         "type": type,
         "state": "init",
-        "cost": cost
+        "cost": cost,
+        "logs": []
     }
 
-    mongo.users.update_one(
-        {"_id": ObjectId(user_data["id"])},
-        {'$push': {"detectors": new_detector}}
-    )
+    id = mongo.detectors.insert_one(new_detector).inserted_id
+    if id is None:
+        return error_response("add_detector", "detector not added because of some problem")
 
     return success_response("/add_detector", "detector added successfully")
 
 
 @app.route("/get_detector_config/<detector_id>")
 def get_detector_config(detector_id):
-    user = mongo.users.find_one(
-        {"detectors.detector_id": detector_id}
+    detector = mongo.detectors.find_one(
+        {"detector_id": detector_id}
     )
 
-    if user is None:
+    if detector is None:
         return error_response("/get_detector_config", "detector has not added to any user yet !")
 
-    detectors = user["detectors"]
-    for det in detectors:
-        if det["detector_id"] == detector_id:
-            config = det["detector_config"]
-
+    config = detector["detector_config"]
     config.update(DETECTOR_CONFIG)
 
     return config
@@ -118,9 +106,9 @@ def set_detector_config(detector_id):
 
     (new_config,) = cm_utils.validate_json(["new_config"])
 
-    mongo.users.update_one(
-        {"detectors.detector_id": detector_id},
-        {"$set": {"detectors.$.detector_config": new_config}}
+    mongo.detectors.update_one(
+        {"detector_id": detector_id},
+        {"$set": {"detector_config": new_config}}
     )
 
     return success_response("/set_detector_config", "config updates successfully")
@@ -132,20 +120,16 @@ def delete_detector(detector_id):
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-    mongo.logs.delete_one({"detector_id": detector_id})
-
-    mongo.users.update_one(
-        {"_id": ObjectId(user_data["id"])},
-        {"$pull": {"detectors": {"detector_id": detector_id}}})
+    mongo.detectors.delete_one({"detector_id": detector_id})
 
     return success_response("/delete_detector", "detector deleted successfully")
 
 
 @app.route("/detector/<detector_id>/export")
 def export_detector_log(detector_id):
-    logs = mongo.logs.find_one({"detector_id": detector_id})
+    detector = mongo.detectors.find_one({"detector_id": detector_id})
 
-    logs_table = pd.DataFrame.from_records(logs["logs"])
+    logs_table = pd.DataFrame.from_records(detector["logs"])
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmppath = os.path.join(tmpdirname, f"{str(datetime.now())}.csv")
@@ -158,5 +142,6 @@ def export_detector_log(detector_id):
 
 @app.route("/detector/<detector_id>/check_state")
 def detector_check_state(detector_id):
-    changed = check_and_update_detectors_state(detector_id)
+    detector = mongo.detectors.find_one({"detector_id": detector_id})
+    changed = check_and_update_detectors_state(detector)
     return success_response("/detector/check_state", changed)

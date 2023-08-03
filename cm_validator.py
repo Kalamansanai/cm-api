@@ -7,14 +7,16 @@ model = LinearRegression()
 
 # TODO: Limit historical data.
 # NOTE: Ha megváltozik a detektálási intervallum, akkor nem pontos
+
+
 def validate(id, time, value, threshold=0.2):
     X = []
     y = []
-    for log in mongo.logs.find_one({"detector_id": id})["logs"]:
+    for log in mongo.detectors.find_one({"detector_id": id})["logs"]:
         X.append(int(log["timestamp"].timestamp() * 1000))
         y.append(log["value"])
 
-    if len(X) < 2: # Can not do much with that
+    if len(X) < 2:  # Can not do much with that
         return True
 
     if value < y[-1]:
