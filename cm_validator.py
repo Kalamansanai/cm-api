@@ -2,6 +2,7 @@ import numpy as np
 from startup import mongo
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
+import time
 
 model = LinearRegression()
 
@@ -9,17 +10,24 @@ model = LinearRegression()
 # NOTE: Ha megváltozik a detektálási intervallum, akkor nem pontos
 
 
-def validate(id, time, value, threshold=0.2):
+def validate(detector, new_value, threshold=0.2):
+    try:
+        new_value = int(new_value)
+    except ValueError:
+        return False
+
+    current_time = round(time.time() * 1000)
+
     X = []
     y = []
-    for log in mongo.detectors.find_one({"detector_id": id})["logs"]:
+    for log in detector["logs"]:
         X.append(int(log["timestamp"].timestamp() * 1000))
         y.append(log["value"])
 
     if len(X) < 2:  # Can not do much with that
         return True
 
-    if value < y[-1]:
+    if new_value < y[-1]:
         return False
 
     X = np.array(X)
@@ -27,10 +35,10 @@ def validate(id, time, value, threshold=0.2):
 
     model.fit(X.reshape(-1, 1), y)
 
-    predicted_value = model.predict(np.array([[time]]))
+    predicted_value = model.predict(np.array([[current_time]]))
 
-    diff = abs(value - predicted_value)
-    average = (value + predicted_value) / 2
+    diff = abs(new_value - predicted_value)
+    average = (new_value + predicted_value) / 2
     percent_diff = (diff / average) * 100
 
     return True if percent_diff <= threshold else False

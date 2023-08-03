@@ -29,24 +29,28 @@ def send_image(detector_id):
     img = request.files["image"]
     img = Image.open(img)
 
-    detector = mongo.detectors.find_one(
-        {"detector_id": detector_id}
-    )
-    config = detector["detector_config"]
+    detector = mongo.detectors.find_one({"detector_id": detector_id})
 
+    config = detector["detector_config"]
     number_length, coma_position = config["charNum"], config["comaPosition"]
 
     log_data = _detector.detect(np.array(img), number_length, coma_position)
 
-    is_valid = V.validate(detector_id, round(time.time() * 1000), log_data)
+    if log_data == None:
+        return success_response("send_image", "not detected a valid number")
 
-    if log_data == None or not is_valid:
-        return success_response("send_image", "success_none")
+    is_valid = V.validate(detector, log_data)
 
-    log = {"timestamp": datetime.now(), "value": int(log_data)}
+    if not is_valid:
+        return success_response("send_image", "value is not valid")
+
+    new_log = {"timestamp": datetime.now(), "value": int(log_data)}
+
+    detector["logs"].append(new_log)
+
     mongo.detectors.find_one_and_update(
         {"detector_id": detector_id},
-        {"$push": {"logs": log}}
+        {"$set": detector}
     )
 
     return success_response("/send_image", "success")
