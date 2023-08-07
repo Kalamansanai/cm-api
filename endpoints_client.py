@@ -7,7 +7,7 @@ import cm_utils
 from plot_preprocess import prepare_lineplot_data, prepare_piechart_data
 
 
-@app.route("/get_logs_for_plot/<detector_id>", methods=["POST"])
+@app.route("/get_logs_for_plot/<detector_id>", methods=["GET"])
 def get_logs_for_plot(detector_id):
     user_data = cm_utils.auth_token()
     if user_data is None:

@@ -8,14 +8,11 @@ def reformat(data: dict, type):
     reformatted_data = []
 
     if type == "line":
-        reformatted_data.append({
-            "id": data["detector_id"],
-            "color": PLOT_COLOR,
-            "data": [{
-                "x": log["timestamp"],
-                "y": log["value"]
-            } for log in data["logs"]]
-        })
+        reformatted_data = [{
+            "date": log["timestamp"],
+            "value": log["value"]
+        } for log in data["logs"]]
+
     elif type == "pie_cost":
         for key in data.keys():
             reformatted_data.append(
