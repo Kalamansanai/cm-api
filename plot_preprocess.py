@@ -1,17 +1,22 @@
-from cm_config import PLOT_COLOR, TYPE_COLORS
 import datetime
-from startup import mongo
+
 import pandas as pd
+
+from cm_config import PLOT_COLOR, TYPE_COLORS
+from startup import mongo
 
 
 def reformat(data: dict, type):
     reformatted_data = []
 
     if type == "line":
-        reformatted_data = [{
-            "date": log["timestamp"],
-            "value": log["value"]
-        } for log in data["logs"]]
+        df = pd.DataFrame.from_records(data["logs"])
+        df["date"] = df["timestamp"].map(
+            lambda x: x.date().strftime("%Y-%m-%d"))
+        df["value"] = df["value"].rolling(2).apply(
+            lambda x: x.iloc[1] - x.iloc[0]).fillna(0)
+
+        reformatted_data = df[["date", "value"]].to_dict(orient="records")
 
     elif type == "pie_cost":
         for key in data.keys():
