@@ -44,7 +44,8 @@ def send_image(detector_id):
     if not is_valid:
         return success_response("send_image", "value is not valid")
 
-    new_log = {"timestamp": datetime.now(), "value": int(log_data)}
+    float_value = int(log_data) / (10 ** coma_position)
+    new_log = {"timestamp": datetime.now(), "value": float_value}
 
     detector["logs"].append(new_log)
 
