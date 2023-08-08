@@ -4,7 +4,7 @@ import os
 PRODUCTION = False
 
 APP_HOST = "0.0.0.0"
-APP_PORT = "3000"
+APP_PORT = "3214"
 
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = "cm_prod" if PRODUCTION else "cm_new"

@@ -27,11 +27,11 @@ def validate(detector, new_value, threshold=0.2):
         y.append(log["value"])
 
     if len(X) < 2:  # Can not do much with that
-        Logger.info("len < 2")
+        Logger.info("Validator --- len < 2")
         return True
 
     if new_value < y[-1]:
-        Logger.info("new_value < y[-1]")
+        Logger.info("Validator --- new_value < y[-1]")
         return False
 
     X = np.array(X)
@@ -45,6 +45,4 @@ def validate(detector, new_value, threshold=0.2):
     average = (new_value + predicted_value) / 2
     percent_diff = (diff / average) * 100
 
-    Logger.info("regr")
-    # return True if percent_diff <= threshold else False
-    return True
+    return True if percent_diff <= threshold else False
