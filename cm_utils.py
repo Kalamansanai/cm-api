@@ -86,3 +86,9 @@ def auth_token():
 
     value = jwt.decode(token, key=JWT_SECRET, algorithms=["HS256",])
     return value
+
+
+def wrap_detector(detector, ignored_fields):
+    detector_filtered = {key: value for key,
+                         value in detector.items() if key not in ignored_fields}
+    return detector_filtered
