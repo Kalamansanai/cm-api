@@ -17,7 +17,7 @@ def reformat(data: dict, type):
         df["date"] = df["timestamp"].map(
             lambda x: x.date().strftime("%Y-%m-%d"))
         df["value"] = df["value"].rolling(2).apply(
-            lambda x: x.iloc[1] - x.iloc[0]).fillna(0)
+            lambda x: np.round(x.iloc[1] - x.iloc[0], 3)).fillna(0)
 
         reformatted_data = df[["date", "value"]].to_dict(orient="records")
 
