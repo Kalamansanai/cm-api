@@ -11,6 +11,8 @@ def reformat(data: dict, type):
     reformatted_data = []
 
     if type == "line":
+        if len(data["logs"]) == 0:
+            return reformatted_data
         df = pd.DataFrame.from_records(data["logs"])
         df["date"] = df["timestamp"].map(
             lambda x: x.date().strftime("%Y-%m-%d"))
@@ -40,9 +42,6 @@ def prepare_lineplot_data(data: dict):
 
 
 def prepare_piechart_data(detectors):
-
-    # TODO: refactor this for the new design
-
     pie_data = {}
     for detector in detectors:
         if detector["type"] in pie_data.keys():
