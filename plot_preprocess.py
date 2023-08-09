@@ -1,6 +1,7 @@
 import datetime
 
 import pandas as pd
+import numpy as np
 
 from cm_config import PLOT_COLOR, TYPE_COLORS
 from startup import mongo
@@ -24,7 +25,7 @@ def reformat(data: dict, type):
                 {
                     "id": key,
                     "label": key,
-                    "value": data[key],
+                    "value": np.round(data[key], 3),
                     "color": TYPE_COLORS[key]
                 }
             )
