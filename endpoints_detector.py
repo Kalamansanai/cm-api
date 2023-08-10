@@ -37,12 +37,12 @@ def send_image(detector_id):
     log_data = _detector.detect(np.array(img), number_length, coma_position)
 
     if log_data == None:
-        return success_response("send_image", "not detected a valid number")
+        return error_response("send_image", "not detected a valid number")
 
     is_valid = V.validate(detector, log_data)
 
     if not is_valid:
-        return success_response("send_image", "value is not valid")
+        return error_response("send_image", "value is not valid")
 
     float_value = int(log_data) / (10 ** coma_position)
     new_log = {"timestamp": datetime.now(), "value": float_value}
