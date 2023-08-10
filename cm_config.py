@@ -1,7 +1,7 @@
 import logging
 import os
 
-PRODUCTION = False
+PRODUCTION = os.getenv("PRODUCTION")
 
 APP_HOST = "0.0.0.0"
 APP_PORT = "3214"
