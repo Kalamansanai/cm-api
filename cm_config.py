@@ -21,9 +21,7 @@ DETECTOR_CONFIG = {
 }
 
 LOG_PATH = (
-    ""
-    if PRODUCTION
-    else "api_log.log"
+    "api_log.log"
 )
 
 JWT_SECRET = os.getenv("JWT_SECRET")
