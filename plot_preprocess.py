@@ -70,4 +70,4 @@ def _structure_detector_pie_data(detector):
 
     monthly_consumption = df.iloc[-1]["value"] - df.iloc[0]["value"]
 
-    return monthly_consumption * detector["cost"]
+    return monthly_consumption * detector["detector_config"]["cost"]
