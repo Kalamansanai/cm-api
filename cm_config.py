@@ -3,8 +3,8 @@ import os
 
 PRODUCTION = os.getenv("PRODUCTION")
 
-APP_HOST = "0.0.0.0"
-APP_PORT = "3214"
+APP_HOST = os.getenv("APP_HOST")
+APP_PORT = os.getenv("APP_PORT")
 
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = "cm_prod" if PRODUCTION else "cm_new"
