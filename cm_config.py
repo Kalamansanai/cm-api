@@ -7,7 +7,11 @@ APP_HOST = os.getenv("APP_HOST")
 APP_PORT = os.getenv("APP_PORT")
 
 MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = "cm_prod" if PRODUCTION else "cm_new"
+# TODO: wtf is this
+DB_NAME = "cm_prod" if PRODUCTION == True else "cm_new"
+
+print(PRODUCTION)
+print(DB_NAME)
 
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
