@@ -1,4 +1,5 @@
 from bson.objectid import ObjectId
+from flask import abort, send_file
 from cm_config import Logger
 
 from startup import app, mongo
@@ -44,6 +45,9 @@ def get_detectors_by_user(user_id):
 
 @app.route("/get_detector/<detector_id>", methods=["GET"])
 def get_detector(detector_id):
+    user_data = cm_utils.auth_token()
+    if user_data is None:
+        return error_response("/get_detector", "no user signed in")
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
 
     detector_filtered = cm_utils.wrap_detector(
@@ -56,10 +60,24 @@ def get_detector(detector_id):
 def get_detector_with_logs(detector_id):
     user_data = cm_utils.auth_token()
     if user_data is None:
-        return error_response("/get_detectors_by_user", "no user signed in")
+        return error_response("/get_detector_with_logs", "no user signed in")
 
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
     detector_filtered = cm_utils.wrap_detector(
         detector_raw, ["_id", "user_id"])
 
     return success_response("/get_detector_logs", detector_filtered)
+
+
+@app.route("/get_detector_img/<detector_id>", methods=["GET"])
+def get_detector_img(detector_id):
+    user_data = cm_utils.auth_token()
+    if user_data is None:
+        return error_response("/get_detector_img", "no user signed in")
+
+    detector = mongo.detectors.find_one({"detector_id": detector_id})
+
+    try:
+        return send_file(detector["image_path"], as_attachment=True)
+    except:
+        return abort(400)

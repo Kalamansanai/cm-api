@@ -9,7 +9,7 @@ import tempfile
 import os
 import pandas as pd
 
-from cm_config import DETECTOR_CONFIG
+from cm_config import DETECTOR_CONFIG, IMAGE_PATH
 from cm_types import success_response, error_response
 import cm_utils
 from detector import Detector
@@ -21,9 +21,8 @@ from bson.objectid import ObjectId
 
 import cm_validator as V
 
+# TODO: refactor this
 _detector = Detector("library/plates.pt", "library/plates.pt")
-
-images_path = "../cm_images"
 
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
@@ -31,7 +30,7 @@ def send_image(detector_id):
     img = request.files["image"]
     img = Image.open(img)
 
-    img_path = f"{images_path}/test.png"
+    img_path = f"{IMAGE_PATH}/test.png"
     img.save(img_path)
 
     detector = mongo.detectors.find_one({"detector_id": detector_id})
