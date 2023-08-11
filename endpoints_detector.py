@@ -23,7 +23,7 @@ import cm_validator as V
 
 _detector = Detector("library/plates.pt", "library/plates.pt")
 
-images_path = "images"
+images_path = "../cm_images"
 
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
