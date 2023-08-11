@@ -46,9 +46,8 @@ def get_detectors_by_user(user_id):
 def get_detector(detector_id):
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
 
-    ignored_fields = ["_id", "user_id", ]
-    detector_filtered = {key: value for key,
-                         value in detector_raw.items() if key not in ignored_fields}
+    detector_filtered = cm_utils.wrap_detector(
+        detector_raw, ["_id", "user_id", "logs"])
 
     return success_response("/get_detector", detector_filtered)
 
@@ -59,7 +58,8 @@ def get_detector_with_logs(detector_id):
     if user_data is None:
         return error_response("/get_detectors_by_user", "no user signed in")
 
-    detector = mongo.detectors.find_one({"detector_id": detector_id})
-    detector = cm_utils.wrap_detector(detector, ["_id", "user_id"])
+    detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
+    detector_filtered = cm_utils.wrap_detector(
+        detector_raw, ["_id", "user_id"])
 
-    return success_response("/get_detector_logs", detector)
+    return success_response("/get_detector_logs", detector_filtered)
