@@ -22,7 +22,7 @@ from bson.objectid import ObjectId
 import cm_validator as V
 
 # TODO: refactor this
-_detector = Detector("library/plates.pt", "library/plates.pt")
+_detector = Detector("library/plates.pt", "library/numbers.pt")
 
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
@@ -47,9 +47,7 @@ def send_image(detector_id):
         is_valid = V.validate(detector, log_data)
 
         if is_valid:
-            float_value = int(log_data) / (10 ** coma_position)
-            new_log = {"timestamp": datetime.now(), "value": float_value}
-
+            new_log = {"timestamp": datetime.now(), "value": log_data}
             detector["logs"].append(new_log)
         else:
             raise Exception("detected value is not valid")
