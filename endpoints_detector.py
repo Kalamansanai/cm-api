@@ -9,7 +9,7 @@ import tempfile
 import os
 import pandas as pd
 
-from cm_config import DETECTOR_CONFIG
+from cm_config import DETECTOR_CONFIG, IMAGE_PATH
 from cm_types import success_response, error_response
 import cm_utils
 from detector import Detector
@@ -21,6 +21,7 @@ from bson.objectid import ObjectId
 
 import cm_validator as V
 
+# TODO: refactor this
 _detector = Detector("library/plates.pt", "library/plates.pt")
 
 
@@ -29,32 +30,40 @@ def send_image(detector_id):
     img = request.files["image"]
     img = Image.open(img)
 
+    img_path = f"{IMAGE_PATH}/test.png"
+    img.save(img_path)
+
     detector = mongo.detectors.find_one({"detector_id": detector_id})
 
-    config = detector["detector_config"]
-    number_length, coma_position = config["charNum"], config["comaPosition"]
+    error = None
 
-    log_data = _detector.detect(np.array(img), number_length, coma_position)
+    try:
+        config = detector["detector_config"]
+        number_length, coma_position = config["charNum"], config["comaPosition"]
 
-    if log_data == None:
-        return error_response("send_image", "not detected a valid number")
+        log_data = _detector.detect(
+            np.array(img), number_length, coma_position)
 
-    is_valid = V.validate(detector, log_data)
+        is_valid = V.validate(detector, log_data)
 
-    if not is_valid:
-        return error_response("send_image", "value is not valid")
+        if is_valid:
+            float_value = int(log_data) / (10 ** coma_position)
+            new_log = {"timestamp": datetime.now(), "value": float_value}
 
-    float_value = int(log_data) / (10 ** coma_position)
-    new_log = {"timestamp": datetime.now(), "value": float_value}
+            detector["logs"].append(new_log)
+        else:
+            raise Exception("detected value is not valid")
+    except BaseException as err:
+        error = f"{err=}"
 
-    detector["logs"].append(new_log)
+    detector["image_path"] = img_path
 
     mongo.detectors.find_one_and_update(
         {"detector_id": detector_id},
         {"$set": detector}
     )
 
-    return success_response("/send_image", "success")
+    return success_response("/send_image", "success") if error is None else error_response("/send_image", error)
 
 
 @app.route("/add_detector", methods=["POST"])
