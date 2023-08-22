@@ -1,0 +1,6 @@
+.env.default
+Pipfile
+Pipfile.lock
+README.md
+.gitignore
+__pycache__/
