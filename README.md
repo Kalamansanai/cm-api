@@ -31,3 +31,8 @@ Its install every package that is downloaded in on other branch.
 # How to make a requirements.txt
 
 `pipenv lock -r > requirements.txt`
+
+# DOCKER
+
+sudo docker build -t cm-api/init .
+sudo docker run -p 3214:3214 cm-api/init
