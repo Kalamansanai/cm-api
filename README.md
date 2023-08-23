@@ -36,3 +36,6 @@ Its install every package that is downloaded in on other branch.
 
 `sudo docker build -t cm-api/init .`
 `sudo docker run -p 3214:3214 cm-api/init`
+
+`docker save -o {image_name}.tar cm-api/init`
+`docker load -i {image_name}.tar`
