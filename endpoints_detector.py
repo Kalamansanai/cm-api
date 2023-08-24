@@ -37,28 +37,33 @@ def send_image(detector_id):
 
     error = None
 
-    try:
-        config = detector["detector_config"]
-        number_length, coma_position = config["charNum"], config["comaPosition"]
+    config = detector["detector_config"]
+    number_length, coma_position = config["charNum"], config["comaPosition"]
 
-        log_data = _detector.detect(
-            np.array(img), number_length, coma_position)
+    log_data = _detector.detect(
+        np.array(img), number_length, coma_position)
 
-        is_valid = V.validate(detector, log_data)
+    is_valid = V.validate(detector, log_data)
 
-        if is_valid:
-            new_log = {"timestamp": datetime.now(), "value": log_data}
-            detector["logs"].append(new_log)
-        else:
-            raise Exception("detected value is not valid")
-    except BaseException as err:
-        error = f"{err=}"
+    if is_valid:
+        new_log = {"timestamp": datetime.now(), "value": log_data}
+        detector["logs"].append(new_log)
+    else:
+        raise Exception("detected value is not valid")
 
     detector["image_path"] = img_path
 
     mongo.detectors.find_one_and_update(
         {"detector_id": detector_id},
         {"$set": detector}
+    )
+
+    # TODO: if there is no such field, it does nothing, fix this
+    mongo.users.find_one_and_update(
+        {"_id": ObjectId(detector["user_id"])},
+        {"$inc": {
+            f"monthly_sums.{detector['type']}": log_data - float(detector["logs"][-1]["value"])
+        }}
     )
 
     return success_response("/send_image", "success") if error is None else error_response("/send_image", error)
