@@ -8,7 +8,7 @@ APP_PORT = os.getenv("APP_PORT")
 
 MONGO_URI = os.getenv("MONGO_URI")
 # TODO: wtf is this
-DB_NAME = "cm_prod" if PRODUCTION == True else "cm_new"
+DB_NAME = "cm_prod" if PRODUCTION == True else "cm_dev"
 
 print(PRODUCTION)
 print(DB_NAME)
