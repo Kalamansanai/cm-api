@@ -34,8 +34,13 @@ Its install every package that is downloaded in on other branch.
 
 # DOCKER
 
+Note: On server, create volume for backend!
+
 `sudo docker build -t cm-api/init .`
 `sudo docker run -p 3214:3214 cm-api/init`
 
 `docker save -o {image_name}.tar cm-api/init`
 `docker load -i {image_name}.tar`
+
+On mac: 
+`docker buildx build --platform linux/amd64 -t cm-api/init .`
