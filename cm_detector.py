@@ -1,11 +1,12 @@
 from bson import ObjectId
+from cm_models import Detector
 from startup import mongo
 from pymongo import ReturnDocument
 from datetime import datetime
 
 
-def id_uniqueness(user_id, detector_id):
-    detectors = mongo.detectors.find({"user_id": user_id})
+def id_uniqueness(location_id, detector_id):
+    detectors = mongo.detectors.find({"location_id": location_id})
 
     for detector in detectors:
         if detector["detector_id"] == detector_id:
@@ -14,25 +15,25 @@ def id_uniqueness(user_id, detector_id):
     return False
 
 
-def check_and_update_detectors_state(detector: dict):
+def check_and_update_detectors_state(detector: Detector):
     changed = False
 
-    if "delay" not in detector["detector_config"].keys():
+    if detector.detector_config.delay == "":
         return "no delay set"
-    elif len(detector["logs"]) == 0:
+    elif len(detector.logs) == 0:
         return "there is no log on this detector"
 
-    photo_time = detector["detector_config"]["delay"]
+    photo_time = detector.detector_config.delay
 
-    last_log = detector["logs"][-1]
+    last_log = detector.logs[-1]
     # TODO: figure this shit out
     delay_time = photo_time * 0.01 * 3600 * 1000
 
-    if datetime.now().timestamp() * 1000 - last_log["timestamp"].timestamp() > delay_time:
+    if datetime.now().timestamp() * 1000 - last_log.timestamp.timestamp() > delay_time:
         if detector["state"] != "sleep":
             # TODO: maybe if there is a lot of detectors, update_many could be better
             mongo.detectors.update_one(
-                {"detector_id": detector["detector_id"]},
+                {"_id": detector["id"]},
                 {"$set": {"state": "sleep"}}
             )
             changed = True

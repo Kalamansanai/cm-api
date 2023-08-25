@@ -1,5 +1,6 @@
 from flask import abort, request
 from cm_detector import check_and_update_detectors_state
+from cm_models import User
 from startup import app
 from cm_types import success_response, error_response, user_data
 from startup import mongo
@@ -24,7 +25,14 @@ def add_user():
     user = user_data(cm_utils.utc_now(), name, email,
                      salt, hash, cm_utils.create_token())
 
-    id = mongo.users.insert_one(user).inserted_id
+    user_id = mongo.users.insert_one(user).inserted_id
+
+    location = {
+        "user_id": user_id,
+        "name": "init",
+        "detectors": []
+    }
+    mongo.locations.insert_one(location)
 
     # TODO: need to make the verification email send
 
@@ -38,14 +46,9 @@ def get_user():
         abort(401)
 
     user = mongo.users.find_one({"_id": ObjectId(user_cookie["id"])})
-    user["id"] = str(user["_id"])
+    user = User(user)
 
-    ignored_fields = ["_id", "password_hash",
-                      "password_salt", "email_verification_token"]
-    user_data = {key: value for key,
-                 value in user.items() if key not in ignored_fields}
-
-    return success_response("/get_user", user_data)
+    return success_response("/get_user", user.get_json())
 
 
 @app.route("/user", methods=["DELETE"])
