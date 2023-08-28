@@ -68,15 +68,18 @@ Its install every package that is downloaded in on other branch.
 
 # DOCKER
 
-**Replace *cm-api* to your needs**
-Login: `sudo docker login` Username: `ipar4` PSW: `Kiskacsa123`
+**Replace *cm-api* tag to your needs. Each project is under a tag**
+**On DockerHub only 1 repository can be private with free plan so we use tags as a repository**
+Login: `docker login` Username: `ipar4` PSW: `Kiskacsa123`
 
-Build image: `sudo docker build -t cm-api .` On mac: `docker buildx build --platform linux/amd64 -t cm-api .`
+Build image: `sudo docker build -t cm-api .` On mac: `sudo docker buildx build --platform linux/amd64 -t cm-api .`
 **Make sure you include the models and .env file!**
 
 Run image (to test it): `sudo docker run -p 3214:3214 cm-api`
 
-Push to hub: `sudo docker push ipar4/consumption_meter` (Server will pull from there)
+Create tag: sudo docker tag cm-api ipar4/ipar4-tk:cm-api
+Push to hub: `sudo docker push ipar4/ipar4-tk:cm-api` (Server will pull from there)
+Restart container on portainer
 
 Notes: 
-- Backend need a docker volume. It is configured on portainer. Path to volumes on server: /var/lib/docker/volumes
+- Backend needs a docker volume. It is configured on portainer. Path to volumes on server: /var/lib/docker/volumes
