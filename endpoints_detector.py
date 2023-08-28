@@ -60,6 +60,7 @@ def send_image(detector_id):
     )
     location = Location(location_raw)
 
+    new_value = log_data - detector.logs[-1].value
     location.add_monthly_log(detector, log_data)
 
     return success_response("/send_image", "success") if error is None else error_response("/send_image", error)
