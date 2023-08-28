@@ -77,3 +77,6 @@ Build image: `sudo docker build -t cm-api .` On mac: `docker buildx build --plat
 Run image (to test it): `sudo docker run -p 3214:3214 cm-api`
 
 Push to hub: `sudo docker push ipar4/consumption_meter` (Server will pull from there)
+
+Notes: 
+- Backend need a docker volume. It is configured on portainer. Path to volumes on server: /var/lib/docker/volumes
