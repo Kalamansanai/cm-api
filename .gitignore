@@ -167,3 +167,4 @@ cython_debug/
 *.tar
 *.jpg
 *.png
+library/plates.pt
