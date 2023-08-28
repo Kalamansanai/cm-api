@@ -34,7 +34,7 @@ class Detector():
         self.location_id = detector_json["location_id"]
         self.detector_id: str = detector_json["detector_id"]
         self.detector_name: str = detector_json["detector_name"]
-        self.type: DetectorType = map_type(detector_json["type"])
+        self.type: str = detector_json["type"]
         self.state: DetectorState = map_state(detector_json["state"])
         self.detector_config: DetectorConfig = DetectorConfig(
             detector_json["detector_config"])
