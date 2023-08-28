@@ -25,7 +25,7 @@ DETECTOR_CONFIG = {
 }
 
 LOG_PATH = (
-    "api_log.log"
+    "library/api_log.log"
 )
 
 JWT_SECRET = os.getenv("JWT_SECRET")
