@@ -31,17 +31,6 @@ def get_user_pie():
     return success_response("get_user_pie", prepare_piechart_data(detectors))
 
 
-# @app.route("/get_detector/<detector_id>", methods=["GET"])
-# def get_detector(detector_id):
-#     user_data = cm_utils.auth_token()
-#     if user_data is None:
-#         return error_response("/get_detector", "no user signed in")
-#     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
-#     detector = Detector(detector_raw)
-
-#     return success_response("/get_detector", detector.get_json(logs=False))
-
-
 @app.route("/get_detector_with_logs/<detector_id>", methods=["GET"])
 def get_detector_with_logs(detector_id):
     user_data = cm_utils.auth_token()

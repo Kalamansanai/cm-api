@@ -1,9 +1,8 @@
 from datetime import datetime
 
 from flask import request, send_file
-from cm_models import Detector, Log
+from cm_models import Detector, Location, Log
 from startup import app, mongo
-import time
 
 from PIL import Image
 import tempfile
@@ -16,7 +15,6 @@ import cm_utils
 from detector import _Detector
 from cm_detector import check_and_update_detectors_state, id_uniqueness
 
-from datetime import datetime
 import numpy as np
 from bson.objectid import ObjectId
 
@@ -57,13 +55,12 @@ def send_image(detector_id):
         {"$set": detector.get_db()}
     )
 
-    # TODO: if there is no such field, it does nothing, fix this
-    # mongo.locations.find_one_and_update(
-    #     {"_id": ObjectId(detector.location_id)},
-    #     {"$inc": {
-    #         f"monthly_sums.{detector['type']}": log_data - float(detector["logs"][-1]["value"])
-    #     }}
-    # )
+    location_raw = mongo.locations.find_one(
+        {"_id": ObjectId(detector.location_id)},
+    )
+    location = Location(location_raw)
+
+    location.add_monthly_log(detector, log_data)
 
     return success_response("/send_image", "success") if error is None else error_response("/send_image", error)
 
