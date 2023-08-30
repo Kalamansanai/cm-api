@@ -20,13 +20,13 @@ def get_logs_for_plot(detector_id):
     return success_response("get_logs_for_plot", prepare_lineplot_data(logs))
 
 
-@app.route("/get_user_pie", methods=["GET"])
-def get_user_pie():
+@app.route("/get_location_pie/<location_id>", methods=["GET"])
+def get_location_pie(location_id):
     user_data = cm_utils.auth_token()
     if user_data is None:
         return error_response("/get_user_pie", "no user signed in")
 
-    detectors = mongo.detectors.find({"user_id": user_data["id"]})
+    detectors = mongo.detectors.find({"location_id": location_id})
 
     return success_response("get_user_pie", prepare_piechart_data(detectors))
 
@@ -49,7 +49,6 @@ def get_detector_img(detector_id):
     if user_data is None:
         return error_response("/get_detector_img", "no user signed in")
 
-    print(detector_id)
     detector = mongo.detectors.find_one({"detector_id": detector_id})
 
     try:
