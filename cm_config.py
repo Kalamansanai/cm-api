@@ -1,7 +1,7 @@
 import logging
 import os
 
-PRODUCTION = os.getenv("PRODUCTION")
+MODE = os.getenv("MODE")
 
 APP_HOST = os.getenv("APP_HOST")
 APP_PORT = os.getenv("APP_PORT")
@@ -9,6 +9,13 @@ APP_PORT = os.getenv("APP_PORT")
 MONGO_URI = os.getenv("MONGO_URI")
 # TODO: wtf is this
 DB_NAME = "cm_prod" if PRODUCTION == True else "cm_dev"
+
+if MODE == "dev":
+    DB_NAME = "cm_dev"
+elif MODE == "prod":
+    DB_NAME = "cm_prod"
+elif MODE == "demo":
+    DB_NAME = "cm_demo"
 
 print(PRODUCTION)
 print(DB_NAME)
