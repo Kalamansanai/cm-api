@@ -1,4 +1,4 @@
-from flask import abort, request
+from flask import abort, request, make_response
 from cm_detector import check_and_update_detectors_state
 from cm_models import User
 from startup import app
@@ -7,6 +7,7 @@ from startup import mongo
 import cm_utils
 from datetime import datetime
 from bson.objectid import ObjectId
+from cm_config import SESSION_PERSISTANCE_TIME, JWT_COOKIE_KEY 
 
 
 @app.route("/register", methods=["POST"])
@@ -61,6 +62,7 @@ def delete_users():
 
     name = request.json["name"]
     mongo.users.delete_one({"name": name})
+    
     return success_response("/delete_user", "User successfully deleted.")
 
 
@@ -86,8 +88,11 @@ def logout():
     if user is None:
         return error_response("/logout", "no user signed in")
 
-    response = cm_utils.set_cookie_time(datetime.now())
-    return response
+    response = make_response(success_response(
+        "/logout", "logout successfully"
+    ))
+
+    return cm_utils.set_cookie_time(response, 0)
 
 
 @app.route("/set_config", methods=["POST"])
