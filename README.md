@@ -64,6 +64,8 @@ Its install every package that is downloaded in on other branch.
 
 `pipenv lock -r > requirements.txt`
 
+
+# .pt and .pem files are available on teams!
   
 
 # DOCKER
@@ -77,7 +79,7 @@ Build image: `sudo docker build -t cm-api .` On mac: `sudo docker buildx build -
 
 Run image (to test it): `sudo docker run -p 3214:3214 cm-api`
 
-Create tag: sudo docker tag cm-api ipar4/ipar4-tk:cm-api
+Create tag: `sudo docker tag cm-api ipar4/ipar4-tk:cm-api`
 Push to hub: `sudo docker push ipar4/ipar4-tk:cm-api` (Server will pull from there)
 Restart container on portainer
 
