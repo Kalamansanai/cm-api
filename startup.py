@@ -17,6 +17,7 @@ app = Flask(__name__)
 ca = certifi.where()
 mongo = MongoClient(MONGO_URI, tlsCAFile=ca)[DB_NAME]
 
+ALLOWED_ORIGINS = ["*"] 
 if MODE == "dev":
      ALLOWED_ORIGINS = ["*"]
 elif MODE == "prod":

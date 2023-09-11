@@ -3,8 +3,8 @@ import os
 
 MODE = os.getenv("MODE")
 
-APP_HOST = os.getenv("APP_HOST")
-APP_PORT = os.getenv("APP_PORT")
+APP_HOST: str | None = os.getenv("APP_HOST")
+APP_PORT: str | None = os.getenv("APP_PORT")
 
 MONGO_URI = os.getenv("MONGO_URI")
 
@@ -46,7 +46,6 @@ _fh.setFormatter(
 )
 _fh.setLevel(logging.INFO)
 _logger.addHandler(_fh)
-
 
 class Logger:
     def debug(msg: str):
