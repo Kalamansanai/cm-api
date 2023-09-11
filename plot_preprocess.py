@@ -12,7 +12,7 @@ def prepare_detector_lineplot_data(detector: Detector):
     value_id = detector.detector_id
 
     if len(detector.logs) == 0:
-        return reformatted_data
+        return None
     df = pd.DataFrame.from_records([log.get_json() for log in detector.logs])
     df["date"] = df["timestamp"].map(
         lambda x: x.date().strftime("%Y-%m-%d"))
@@ -24,10 +24,8 @@ def prepare_detector_lineplot_data(detector: Detector):
     return reformatted_data
 
 def prepare_location_lineplot_data(location: Location):
-    reformatted_data = reformat(location, "location_line")
-    
-    reformatted_data = [reformat(detector, "detector_line") for detector in location.detectors]
-    print(reformatted_data)
+    #TODO: implement this
+    return NotImplemented
 
 
 def prepare_piechart_data(detectors):

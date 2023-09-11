@@ -125,12 +125,12 @@ class Location():
 class DetectorConfig():
 
     def __init__(self, config_json: dict):
-        self.charNum: int = config_json["charNum"] if "charNum" in config_json.keys(
+        self.charNum = config_json["charNum"] if "charNum" in config_json.keys(
         ) else ""
-        self.comaPosition: int = config_json["comaPosition"] if "comaPosition" in config_json.keys(
+        self.comaPosition = config_json["comaPosition"] if "comaPosition" in config_json.keys(
         ) else ""
         self.delay: int = config_json["delay"] if "delay" in config_json.keys(
-        ) else ""
+        ) else 0
         self.cost: int = config_json["cost"] if "cost" in config_json.keys(
         ) else 0
         self.flash: int = config_json["flash"] if "flash" in config_json.keys(
@@ -214,6 +214,8 @@ def map_state(state: str):
         return DetectorState.INIT
     elif state == "sleep":
         return DetectorState.SLEEP
+    else:
+        return DetectorState.INIT
 
 
 class DetectorState(Enum):

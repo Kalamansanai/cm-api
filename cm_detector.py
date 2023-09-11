@@ -1,7 +1,5 @@
-from bson import ObjectId
-from cm_models import Detector
+from cm_models import Detector, Log
 from startup import mongo
-from pymongo import ReturnDocument
 from datetime import datetime
 
 
@@ -25,15 +23,14 @@ def check_and_update_detectors_state(detector: Detector):
 
     photo_time = detector.detector_config.delay
 
-    last_log = detector.logs[-1]
-    # TODO: figure this shit out
+    last_log: Log = detector.logs[-1]
     delay_time = photo_time * 0.01 * 3600 * 1000
 
     if datetime.now().timestamp() * 1000 - last_log.timestamp.timestamp() > delay_time:
-        if detector["state"] != "sleep":
+        if detector.state != "sleep":
             # TODO: maybe if there is a lot of detectors, update_many could be better
             mongo.detectors.update_one(
-                {"_id": detector["id"]},
+                {"_id": detector.id},
                 {"$set": {"state": "sleep"}}
             )
             changed = True
