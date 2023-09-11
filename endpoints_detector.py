@@ -119,7 +119,7 @@ def get_detector_config(detector_id):
     config = detector["detector_config"]
     config.update(DETECTOR_CONFIG)
 
-    return config
+    return success_response("/get_detector_config", config)
 
 
 @app.route("/set_detector_config/<detector_id>", methods=["POST"])
@@ -174,3 +174,20 @@ def detector_check_state(detector_id):
     detector = mongo.detectors.find_one({"detector_id": detector_id})
     changed = check_and_update_detectors_state(detector)
     return success_response("/detector/check_state", changed)
+
+
+@app.route("/get_all_detectors", methods=["GET"])
+def get_all_detectors():
+    user_data = cm_utils.auth_token()  
+    if user_data is None:
+        return error_response("/get_all_detectors", "no user signed in")
+    
+    user_id = user_data["id"]  
+    
+    location = mongo.locations.find_one({"user_id": ObjectId(user_id)})
+    
+    if location is None:
+        return error_response("/get_all_detectors", "No location found for the user.")
+    
+    detectors = location.get("detectors", [])
+    return success_response("/get_all_detectors", detectors)
