@@ -15,7 +15,7 @@ def prepare_detector_lineplot_data(detector: Detector):
         return None
     df = pd.DataFrame.from_records([log.get_json() for log in detector.logs])
     df["date"] = df["timestamp"].map(
-        lambda x: x.date().strftime("%Y-%m-%d"))
+            lambda x: x.strftime("%m.%d-%H:%M"))
     df[value_id] = df["value"].rolling(2).apply(
         lambda x: np.round(x.iloc[1] - x.iloc[0], 3)).fillna(0)
 
