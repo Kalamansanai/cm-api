@@ -26,13 +26,15 @@ _detector = _Detector("library/plates.pt", "library/numbers.pt")
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):
-    img = request.files["image"]
-    img = Image.open(img)
+    img_raw = request.files["image"]
+    img = Image.open(img_raw)
 
     img_path = f"{IMAGE_PATH}/test.png"
     img.save(img_path)
 
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
+    if detector_raw is None:
+        return error_response("/send_image", "detector is not found")
     detector = Detector(detector_raw)
 
     error = None
@@ -58,10 +60,13 @@ def send_image(detector_id):
     location_raw = mongo.locations.find_one(
         {"_id": ObjectId(detector.location_id)},
     )
+    if(location_raw is None):
+        return error_response("/send_image", "location is not found")
+
     location = Location(location_raw)
 
-    new_value = log_data - detector.logs[-1].value
-    location.add_monthly_log(detector, log_data)
+    new_value = (log_data - detector.logs[-1].value) * detector.detector_config.cost
+    location.add_monthly_log(detector, new_value)
 
     return success_response("/send_image", "success") if error is None else error_response("/send_image", error)
 
