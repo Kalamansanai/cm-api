@@ -57,7 +57,7 @@ def _structure_detector_pie_data(detector):
     if data == []:
         return 0
 
-    current_month = datetime.datetime.now().month
+    current_month = datetime.datetime.now().month - 1
 
     df = pd.DataFrame.from_dict(data)
     df["month"] = pd.DatetimeIndex(df["timestamp"]).month
