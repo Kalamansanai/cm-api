@@ -26,8 +26,8 @@ _detector = _Detector("library/plates.pt", "library/numbers.pt")
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):
-    (img,) = cm_utils.validate_json(["image"])
-    img = Image.open(img)
+    img_raw = request.files["image"]
+    img = Image.open(img_raw)
 
     img_path = f"{IMAGE_PATH}/test.png"
     img.save(img_path)
