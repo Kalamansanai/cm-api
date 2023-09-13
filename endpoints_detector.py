@@ -16,6 +16,7 @@ from cm_detector import check_and_update_detectors_state, id_uniqueness
 
 from datetime import datetime
 import numpy as np
+import json
 from bson.objectid import ObjectId
 
 detector = Detector("library/plates.pt", "library/plates.pt")
@@ -60,6 +61,9 @@ def add_detector_to_user():
     (detector_id, type, detector_name, cost) = cm_utils.validate_json(
         ["detector_id", "type", "detector_name", "cost"]
     )
+
+    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
+        return error_response("/add_detector", "This detector ID is not valid.")
 
     if id_uniqueness(user_data["email"], detector_id):
         return error_response("/add_detector", "A detector is already registered with this id !")
