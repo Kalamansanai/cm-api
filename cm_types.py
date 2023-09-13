@@ -19,10 +19,10 @@ def user_data(creation_time: str, name: str, email: str, password_salt: str, pas
 def success_response(endpoint, data):
     token = request.cookies.get(JWT_COOKIE_KEY)
 
-    if token is None:
-        return error_response("/success_response", "no cookie in the request")
-
     response = make_response({"result": "ok", "data": data})
+
+    if token is None:
+        return response
 
     response.set_cookie(
         key=JWT_COOKIE_KEY,

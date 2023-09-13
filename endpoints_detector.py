@@ -124,7 +124,7 @@ def get_detector_config(detector_id):
     config = detector["detector_config"]
     config.update(DETECTOR_CONFIG)
 
-    return success_response("/get_detector_config", config)
+    return config
 
 
 @app.route("/set_detector_config/<detector_id>", methods=["POST"])
