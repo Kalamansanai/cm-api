@@ -58,7 +58,7 @@ def delete_users():
     # TODO: delete all of its detectors
     user = cm_utils.auth_token()
     if user is None:
-        return error_response("/get_user", "no user signed in")
+        return abort(401)
 
     name = request.json["name"]
     mongo.users.delete_one({"name": name})
@@ -71,7 +71,7 @@ def login():
     email, password = cm_utils.validate_json(["email", "password"])
     user = mongo.users.find_one({"email": email})
     if user is None:
-        return error_response("/login", "this email has not been registered")
+        return abort(401)
     if not user["password_salt"] or not user["password_hash"]:
         return error_response("/login", "password error")
 
@@ -86,7 +86,7 @@ def login():
 def logout():
     user = cm_utils.auth_token()
     if user is None:
-        return error_response("/logout", "no user signed in")
+        return abort(401)
 
     response = make_response(success_response(
         "/logout", "logout successfully"
@@ -100,7 +100,7 @@ def set_user_config():
     (new_config, ) = cm_utils.validate_json(["new_config"])
     user_data = cm_utils.auth_token()
     if user_data is None:
-        return error_response("/set_config", "no user signed in")
+        return abort(401)
 
     mongo.users.update_one({"email": user_data['email']}, {
         "$set": {"config": new_config}})

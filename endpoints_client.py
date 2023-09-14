@@ -13,7 +13,7 @@ from plot_preprocess import prepare_detector_lineplot_data, prepare_location_lin
 def get_logs_for_plot_by_detector(detector_id):
     user_data = cm_utils.auth_token()
     if user_data is None:
-        return error_response("/get_user_pie", "no user signed in")
+        return abort(401)
 
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
@@ -33,7 +33,7 @@ def get_logs_for_plot_by_detector(detector_id):
 def get_logs_for_plot_by_location(location_id):
     user_data = cm_utils.auth_token()
     if user_data is None:
-        return error_response("/get_user_pie", "no user signed in")
+        return abort(401)
 
     location_raw = mongo.locations.find_one({"_id": ObjectId(location_id)})
     if location_raw is None:
@@ -53,7 +53,7 @@ def get_logs_for_plot_by_location(location_id):
 def get_location_pie(location_id):
     user_data = cm_utils.auth_token()
     if user_data is None:
-        return error_response("/get_user_pie", "no user signed in")
+        return abort(401)
 
     detectors = mongo.detectors.find({"location_id": location_id})
 
@@ -64,7 +64,7 @@ def get_location_pie(location_id):
 def get_detector_with_logs(detector_id):
     user_data = cm_utils.auth_token()
     if user_data is None:
-        return error_response("/get_detector_with_logs", "no user signed in")
+        return abort(401)
 
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
@@ -78,7 +78,7 @@ def get_detector_with_logs(detector_id):
 def get_detector_img(detector_id):
     user_data = cm_utils.auth_token()
     if user_data is None:
-        return error_response("/get_detector_img", "no user signed in")
+        return abort(401)
 
     detector = mongo.detectors.find_one({"detector_id": detector_id})
     if detector is None:
@@ -94,7 +94,7 @@ def get_detector_img(detector_id):
 def get_location():
     user_data = cm_utils.auth_token()
     if user_data is None:
-        return error_response("/get_detector_img", "no user signed in")
+        return abort(401)
 
     location_raw = mongo.locations.find_one(
         {"user_id": ObjectId(user_data["id"])})
