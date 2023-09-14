@@ -1,6 +1,7 @@
 from cm_models import Detector, Log
 from startup import mongo
 from datetime import datetime
+import json
 
 
 def id_uniqueness(location_id, detector_id):
@@ -36,3 +37,8 @@ def check_and_update_detectors_state(detector: Detector):
             changed = True
 
     return changed
+
+def detector_valid(detector_id: str):
+    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
+        return False
+

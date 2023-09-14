@@ -9,11 +9,11 @@ import tempfile
 import os
 import pandas as pd
 
-from cm_config import DETECTOR_CONFIG, IMAGE_PATH
+from cm_config import DETECTOR_CONFIG, IMAGE_PATH, MODE
 from cm_types import success_response, error_response
 import cm_utils
 from detector import _Detector
-from cm_detector import check_and_update_detectors_state, id_uniqueness
+from cm_detector import check_and_update_detectors_state, id_uniqueness, detector_valid
 
 import numpy as np
 import json
@@ -83,7 +83,7 @@ def add_detector_to_user():
     )
 
 
-    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
+    if MODE == "prod" and not detector_valid(detector_id):
         return error_response("/add_detector", "This detector ID is not valid.")
 
     if id_uniqueness(location_id, detector_id):
