@@ -48,7 +48,7 @@ def send_image(detector_id):
         new_log = Log({"timestamp": datetime.now(), "value": log_data})
         detector.logs.append(new_log)
     else:
-        raise Exception("detected value is not valid")
+        return error_response("/set_image", "detected value is not valid")
 
     detector.img_path = img_path
 
