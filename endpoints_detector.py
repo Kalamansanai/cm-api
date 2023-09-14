@@ -16,6 +16,7 @@ from detector import _Detector
 from cm_detector import check_and_update_detectors_state, id_uniqueness
 
 import numpy as np
+import json
 from bson.objectid import ObjectId
 
 import cm_validator as V
@@ -80,6 +81,10 @@ def add_detector_to_user():
     (location_id, detector_id, type, detector_name) = cm_utils.validate_json(
         ["location_id", "detector_id", "type", "detector_name"]
     )
+
+
+    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
+        return error_response("/add_detector", "This detector ID is not valid.")
 
     if id_uniqueness(location_id, detector_id):
         return error_response("/add_detector", "A detector is already registered with this id !")
