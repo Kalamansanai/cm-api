@@ -81,7 +81,7 @@ Run image (to test it): `sudo docker run -p 3214:3214 cm-api`
 
 Create tag: `sudo docker tag cm-api ipar4/ipar4-tk:cm-api`
 Push to hub: `sudo docker push ipar4/ipar4-tk:cm-api` (Server will pull from there)
-Restart container on portainer
+Recreate container on portainer (Pull image!)
 
 Notes: 
 - Backend needs a docker volume. It is configured on portainer. Path to volumes on server: /var/lib/docker/volumes
