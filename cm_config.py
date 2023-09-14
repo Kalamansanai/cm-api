@@ -15,6 +15,7 @@ elif MODE == "prod":
 elif MODE == "demo":
     DB_NAME = "cm_demo"
 
+        
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 IMAGE_PATH = os.getenv("IMAGE_PATH")
@@ -32,7 +33,7 @@ LOG_PATH = (
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_COOKIE_KEY = "cm-user-token"
-SESSION_PERSISTANCE_TIME = 1800  # 30 minutes
+SESSION_PERSISTANCE_TIME = 1800 if MODE == "prod" else 30000000
 SESSION_COOKIE_HTTPS_ONLY = False
 SESSION_KEY_SALT = os.getenv("SESSION_KEY_SALT")
 
@@ -49,16 +50,28 @@ _logger.addHandler(_fh)
 
 class Logger:
     def debug(msg: str):
-        _logger.debug(msg)
+        if MODE == "prod":
+            print(msg)
+        else:
+            _logger.debug(msg)
 
     def info(msg: str):
-        _logger.info(msg)
+        if MODE == "prod":
+            print(msg)
+        else:
+            _logger.info(msg)
 
     def warning(msg: str):
-        _logger.warning(msg)
+        if MODE == "prod":
+            print(msg)
+        else:
+            _logger.warning(msg)
 
     def error(msg: str):
-        _logger.error(msg)
+        if MODE == "prod":
+            print(msg)
+        else:
+            _logger.error(msg)
 
 
 PLOT_COLOR = "hsl(101, 70%, 50%)"
