@@ -1,17 +1,24 @@
 import logging
 import os
 
-PRODUCTION = False
+MODE = os.getenv("MODE")
 
-APP_HOST = "0.0.0.0"
-APP_PORT = "3000"
+APP_HOST: str | None = os.getenv("APP_HOST")
+APP_PORT: str | None = os.getenv("APP_PORT")
 
 MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = "cm_prod" if PRODUCTION else "cm_dev"
 
+if MODE == "dev":
+    DB_NAME = "cm_dev"
+elif MODE == "prod":
+    DB_NAME = "cm_prod"
+elif MODE == "demo":
+    DB_NAME = "cm_demo"
+
+        
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-IMAGE_PATH = "images"
+IMAGE_PATH = os.getenv("IMAGE_PATH")
 
 DETECTOR_CONFIG = {
     "quality": 12,
@@ -21,14 +28,12 @@ DETECTOR_CONFIG = {
 }
 
 LOG_PATH = (
-    ""
-    if PRODUCTION
-    else "api_log.log"
+    "library/api_log.log"
 )
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_COOKIE_KEY = "cm-user-token"
-SESSION_PERSISTANCE_TIME = 1800  # 30 minutes
+SESSION_PERSISTANCE_TIME = 1800 if MODE == "prod" else 30000000
 SESSION_COOKIE_HTTPS_ONLY = False
 SESSION_KEY_SALT = os.getenv("SESSION_KEY_SALT")
 
@@ -43,19 +48,30 @@ _fh.setFormatter(
 _fh.setLevel(logging.INFO)
 _logger.addHandler(_fh)
 
-
 class Logger:
     def debug(msg: str):
-        _logger.debug(msg)
+        if MODE == "prod":
+            print(msg)
+        else:
+            _logger.debug(msg)
 
     def info(msg: str):
-        _logger.info(msg)
+        if MODE == "prod":
+            print(msg)
+        else:
+            _logger.info(msg)
 
     def warning(msg: str):
-        _logger.warning(msg)
+        if MODE == "prod":
+            print(msg)
+        else:
+            _logger.warning(msg)
 
     def error(msg: str):
-        _logger.error(msg)
+        if MODE == "prod":
+            print(msg)
+        else:
+            _logger.error(msg)
 
 
 PLOT_COLOR = "hsl(101, 70%, 50%)"

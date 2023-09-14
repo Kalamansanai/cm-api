@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from flask import request, send_file
+from cm_models import Detector, Location, Log
 from startup import app, mongo
 
 from PIL import Image
@@ -8,48 +9,67 @@ import tempfile
 import os
 import pandas as pd
 
-from cm_config import DETECTOR_CONFIG
+from cm_config import DETECTOR_CONFIG, IMAGE_PATH
 from cm_types import success_response, error_response
 import cm_utils
-from detector import Detector
+from detector import _Detector
 from cm_detector import check_and_update_detectors_state, id_uniqueness
 
-from datetime import datetime
 import numpy as np
 import json
 from bson.objectid import ObjectId
 
-detector = Detector("library/plates.pt", "library/plates.pt")
+import cm_validator as V
+
+# TODO: refactor this
+_detector = _Detector("library/plates.pt", "library/numbers.pt")
 
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):
-    img = request.files["image"]
-    img = Image.open(img)
+    img_raw = request.files["image"]
+    img = Image.open(img_raw)
 
-    user = mongo.users.find_one(
-        {"detectors.detector_id": detector_id}
-    )
+    img_path = f"{IMAGE_PATH}/test.png"
+    img.save(img_path)
 
-    detectors = user["detectors"]
-    for det in detectors:
-        if det["detector_id"] == detector_id:
-            config = det["detector_config"]
+    detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
+    if detector_raw is None:
+        return error_response("/send_image", "detector is not found")
+    detector = Detector(detector_raw)
 
-    number_length, coma_position = config["charNum"], config["comaPosition"]
+    error = None
 
-    log_data = detector.detect(np.array(img), number_length, coma_position)
+    log_data = _detector.detect(
+        np.array(img), detector.detector_config.charNum, detector.detector_config.comaPosition)
 
-    if log_data == None:
-        return success_response("send_image", "success_none")
+    is_valid = V.validate(detector, log_data)
 
-    log = {"timestamp": datetime.now(), "value": int(log_data)}
-    mongo.logs.find_one_and_update(
+    if is_valid:
+        new_log = Log({"timestamp": datetime.now(), "value": log_data})
+        detector.logs.append(new_log)
+    else:
+        return error_response("/set_image", "detected value is not valid")
+
+    detector.img_path = img_path
+
+    mongo.detectors.find_one_and_update(
         {"detector_id": detector_id},
-        {"$push": {"logs": log}}
+        {"$set": detector.get_db()}
     )
 
-    return success_response("/send_image", "success")
+    location_raw = mongo.locations.find_one(
+        {"_id": ObjectId(detector.location_id)},
+    )
+    if(location_raw is None):
+        return error_response("/send_image", "location is not found")
+
+    location = Location(location_raw)
+
+    new_value = (log_data - detector.logs[-1].value) * detector.detector_config.cost
+    location.add_monthly_log(detector, new_value)
+
+    return success_response("/send_image", "success") if error is None else error_response("/send_image", error)
 
 
 @app.route("/add_detector", methods=["POST"])
@@ -58,52 +78,55 @@ def add_detector_to_user():
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-    (detector_id, type, detector_name, cost) = cm_utils.validate_json(
-        ["detector_id", "type", "detector_name", "cost"]
+    (location_id, detector_id, type, detector_name) = cm_utils.validate_json(
+        ["location_id", "detector_id", "type", "detector_name"]
     )
+
 
     if detector_id not in json.load(open('library/detector_list.json'))["id"]:
         return error_response("/add_detector", "This detector ID is not valid.")
 
-    if id_uniqueness(user_data["email"], detector_id):
+    if id_uniqueness(location_id, detector_id):
         return error_response("/add_detector", "A detector is already registered with this id !")
-
-    mongo.logs.insert_one({
-        "detector_id": detector_id,
-        "logs": []
-    }).inserted_id
 
     new_detector = {
         "detector_id": detector_id,
+        "location_id": location_id,
         "detector_name": detector_name,
-        "detector_config": {},
+        "detector_config": {
+            "delay": 86400000,  # a day
+            "cost": 1,
+            "flash": 0
+        },
         "type": type,
         "state": "init",
-        "cost": cost
+        "logs": [],
+        "img_path": ""
     }
 
-    mongo.users.update_one(
-        {"_id": ObjectId(user_data["id"])},
-        {'$push': {"detectors": new_detector}}
+    detector_id = mongo.detectors.insert_one(new_detector).inserted_id
+    if detector_id is None:
+        return error_response("add_detector", "detector not added because of some problem")
+
+    new_detector["_id"] = detector_id
+    mongo.locations.find_one_and_update(
+        {"_id": ObjectId(location_id)},
+        {"$push": {"detectors": new_detector}}
     )
 
-    return success_response("/add_detector", "detector added successfully")
+    return success_response("/add_detector", str(detector_id))
 
 
 @app.route("/get_detector_config/<detector_id>")
 def get_detector_config(detector_id):
-    user = mongo.users.find_one(
-        {"detectors.detector_id": detector_id}
+    detector = mongo.detectors.find_one(
+        {"detector_id": detector_id}
     )
 
-    if user is None:
+    if detector is None:
         return error_response("/get_detector_config", "detector has not added to any user yet !")
 
-    detectors = user["detectors"]
-    for det in detectors:
-        if det["detector_id"] == detector_id:
-            config = det["detector_config"]
-
+    config = detector["detector_config"]
     config.update(DETECTOR_CONFIG)
 
     return config
@@ -117,9 +140,9 @@ def set_detector_config(detector_id):
 
     (new_config,) = cm_utils.validate_json(["new_config"])
 
-    mongo.users.update_one(
-        {"detectors.detector_id": detector_id},
-        {"$set": {"detectors.$.detector_config": new_config}}
+    mongo.detectors.update_one(
+        {"detector_id": detector_id},
+        {"$set": {"detector_config": new_config}}
     )
 
     return success_response("/set_detector_config", "config updates successfully")
@@ -131,20 +154,21 @@ def delete_detector(detector_id):
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-    mongo.logs.delete_one({"detector_id": detector_id})
+    mongo.detectors.delete_one({"_id": ObjectId(detector_id)})
 
-    mongo.users.update_one(
-        {"_id": ObjectId(user_data["id"])},
-        {"$pull": {"detectors": {"detector_id": detector_id}}})
+    mongo.locations.find_one_and_update(
+        {"user_id": ObjectId(user_data["id"])},
+        {"$pull": {"detectors": {"_id": ObjectId(detector_id)}}}
+    )
 
     return success_response("/delete_detector", "detector deleted successfully")
 
 
 @app.route("/detector/<detector_id>/export")
 def export_detector_log(detector_id):
-    logs = mongo.logs.find_one({"detector_id": detector_id})
+    detector = mongo.detectors.find_one({"_id": ObjectId(detector_id)})
 
-    logs_table = pd.DataFrame.from_records(logs["logs"])
+    logs_table = pd.DataFrame.from_records(detector["logs"])
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmppath = os.path.join(tmpdirname, f"{str(datetime.now())}.csv")
@@ -157,5 +181,23 @@ def export_detector_log(detector_id):
 
 @app.route("/detector/<detector_id>/check_state")
 def detector_check_state(detector_id):
-    changed = check_and_update_detectors_state(detector_id)
+    detector = mongo.detectors.find_one({"detector_id": detector_id})
+    changed = check_and_update_detectors_state(detector)
     return success_response("/detector/check_state", changed)
+
+
+@app.route("/get_all_detectors", methods=["GET"])
+def get_all_detectors():
+    user_data = cm_utils.auth_token()  
+    if user_data is None:
+        return error_response("/get_all_detectors", "no user signed in")
+    
+    user_id = user_data["id"]  
+    
+    location = mongo.locations.find_one({"user_id": ObjectId(user_id)})
+    
+    if location is None:
+        return error_response("/get_all_detectors", "No location found for the user.")
+    
+    detectors = location.get("detectors", [])
+    return success_response("/get_all_detectors", detectors)

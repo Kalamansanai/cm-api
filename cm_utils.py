@@ -38,10 +38,12 @@ def create_set_cookie_response(user: dict):
 
     token = jwt.encode(payload=user_data, key=JWT_SECRET)
 
-    response = make_response(success_response(
-        "create_set_cookie_response", token))
+    response = make_response({
+        "result": "ok",
+        "data": token
+        }
+        )
 
-    # TODO: make the token persistent
     response.set_cookie(
         key=JWT_COOKIE_KEY,
         value=token,
@@ -52,13 +54,8 @@ def create_set_cookie_response(user: dict):
     return response
 
 
-def set_cookie_time(time):
-
+def set_cookie_time(response, time):
     token = request.cookies.get(JWT_COOKIE_KEY)
-
-    response = make_response(success_response(
-        "set_cookie_time", token
-    ))
 
     response.set_cookie(
         key=JWT_COOKIE_KEY,
@@ -86,3 +83,9 @@ def auth_token():
 
     value = jwt.decode(token, key=JWT_SECRET, algorithms=["HS256",])
     return value
+
+
+def wrap_detector(detector, ignored_fields):
+    detector_filtered = {key: value for key,
+                         value in detector.items() if key not in ignored_fields}
+    return detector_filtered

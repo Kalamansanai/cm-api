@@ -1,15 +1,10 @@
-from bson import ObjectId
+from cm_models import Detector, Log
 from startup import mongo
-from pymongo import ReturnDocument
 from datetime import datetime
 
 
-def id_uniqueness(user_email, detector_id):
-    user = mongo.users.find_one(
-        {"email": user_email}
-    )
-
-    detectors = user["detectors"]
+def id_uniqueness(location_id, detector_id):
+    detectors = mongo.detectors.find({"location_id": location_id})
 
     for detector in detectors:
         if detector["detector_id"] == detector_id:
@@ -18,43 +13,26 @@ def id_uniqueness(user_email, detector_id):
     return False
 
 
-def check_and_update_detectors_state(user_from_cookie):
-    user = mongo.users.find_one({"_id": ObjectId(user_from_cookie["id"])})
+def check_and_update_detectors_state(detector: Detector):
+    changed = False
 
-    updated = False
-    updated_detectors = []
+    if detector.detector_config.delay == "":
+        return "no delay set"
+    elif len(detector.logs) == 0:
+        return "there is no log on this detector"
 
-    for detector in user["detectors"]:
-        if "delay" not in detector["detector_config"].keys():
-            updated_detectors.append(detector)
-            continue
+    photo_time = detector.detector_config.delay
 
-        # TODO: if the detector_id is the _id: ObjectId, then its good ig
-        logs_obj = mongo.logs.find_one(
-            {"detector_id": detector["detector_id"]}
-        )
+    last_log: Log = detector.logs[-1]
+    delay_time = photo_time * 0.01 * 3600 * 1000
 
-        if len(logs_obj["logs"]) < 2:
-            updated_detectors.append(detector)
-            continue
+    if datetime.now().timestamp() * 1000 - last_log.timestamp.timestamp() > delay_time:
+        if detector.state != "sleep":
+            # TODO: maybe if there is a lot of detectors, update_many could be better
+            mongo.detectors.update_one(
+                {"_id": detector.id},
+                {"$set": {"state": "sleep"}}
+            )
+            changed = True
 
-        photo_time = detector["detector_config"]["delay"]
-
-        last_log = logs_obj["logs"][-1]
-        delay_time = photo_time * 0.01 * 3600 * 1000
-
-        if datetime.now().timestamp() - last_log["timestamp"].timestamp() > delay_time:
-            updated = True
-            if detector["state"] != "sleep":
-                detector["state"] = "sleep"
-        updated_detectors.append(detector)
-
-    if updated:
-        updated_user = mongo.users.find_one_and_update(
-            {"_id": ObjectId(user_from_cookie["id"])},
-            {"$set": {"detectors": updated_detectors}},
-            return_document=ReturnDocument.AFTER
-        )
-        return updated_user
-
-    return user
+    return changed
