@@ -8,7 +8,7 @@ import time
 # TODO
 def validate(detector: Detector, new_value):
     if new_value != None:
-        if len(detector.logs) > 0 and new_value < detector.logs[-1]:
+        if len(detector.logs) > 0 and new_value < detector.logs[-1].value:
             return False 
         return True
     else:
