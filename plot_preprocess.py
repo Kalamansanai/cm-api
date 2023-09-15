@@ -6,6 +6,7 @@ import numpy as np
 from cm_config import PLOT_COLOR, TYPE_COLORS
 from startup import mongo
 from cm_models import Detector, Location
+from cm_types import error_response
 
 
 def prepare_detector_lineplot_data(detector: Detector):
@@ -31,12 +32,13 @@ def prepare_location_lineplot_data(location: Location):
 def prepare_piechart_data(detectors):
     pie_data = {}
     for detector in detectors:
-        if detector["type"] in pie_data.keys():
-            pie_data[detector["type"]] = pie_data[detector["type"]] + \
-                float(_structure_detector_pie_data(detector))
+        monthly_cost = detector_monthly_consumption(detector) * detector.detector_config.cost
+        if detector.type in pie_data.keys():
+            pie_data[detector.type] = pie_data[detector.type] + \
+                float(monthly_cost)
         else:
-            pie_data[detector["type"]] = float(
-                _structure_detector_pie_data(detector))
+            pie_data[detector.type] = float(
+               monthly_cost) 
 
     reformatted_data = []
     for key in pie_data.keys():
@@ -51,9 +53,8 @@ def prepare_piechart_data(detectors):
 
     return reformatted_data
 
-
-def _structure_detector_pie_data(detector):
-    data = detector["logs"]
+def detector_monthly_consumption(detector: Detector):
+    data = [log.get_json() for log in detector.logs]
     if data == []:
         return 0
 
@@ -67,10 +68,7 @@ def _structure_detector_pie_data(detector):
     if df.empty:
         return 0
 
-    monthly_consumption = df.iloc[-1]["value"] - df.iloc[0]["value"]
-
-    return monthly_consumption * detector["detector_config"]["cost"]
-
+    return df.iloc[-1]["value"] - df.iloc[0]["value"]
 
 def make_config(detector_ids):
 
@@ -109,3 +107,14 @@ def make_config(detector_ids):
         "Lines": lines
 
     }
+
+def monthly_stat_by_type(location: Location, type: str):
+    
+    detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
+    if detectors == []:
+        return error_response("monthly_stat_by_type", "no detector found")
+
+    values  = [detector_monthly_consumption(Detector(detector)) for detector in detectors if detector is not None]
+
+    return sum(values)
+

@@ -6,7 +6,7 @@ from cm_models import Detector, Location
 from startup import app, mongo
 from cm_types import error_response, success_response
 import cm_utils
-from plot_preprocess import prepare_detector_lineplot_data, prepare_location_lineplot_data, prepare_piechart_data, make_config
+from plot_preprocess import prepare_detector_lineplot_data, prepare_location_lineplot_data, prepare_piechart_data, make_config, monthly_stat_by_type
 
 
 @app.route("/get_logs_for_plot_by_detector/<detector_id>", methods=["GET"])
@@ -55,7 +55,8 @@ def get_location_pie(location_id):
     if user_data is None:
         return abort(401)
 
-    detectors = mongo.detectors.find({"location_id": location_id})
+    detectors_raw = mongo.detectors.find({"location_id": location_id})
+    detectors = [Detector(detector_row) for detector_row in detectors_raw]
 
     return success_response("get_user_pie", prepare_piechart_data(detectors))
 
@@ -103,3 +104,20 @@ def get_location():
     location = Location(location_raw)
 
     return success_response("/get_location", location.get_json())
+
+@app.route("/get_location_monthly_stat_by_type/<location_id>", methods=["POST"])
+def get_location_monthly_stat_by_type(location_id):
+    user_data = cm_utils.auth_token()
+    if user_data is None:
+        return abort(401)
+
+    (type, ) = cm_utils.validate_json(["type"]) 
+
+    location_raw = mongo.locations.find_one({"_id": ObjectId(location_id)})
+    if location_raw is None:
+        return error_response("/get_location_monthly_stat_by_type", "location is not found")
+    location = Location(location_raw)
+
+    stat = monthly_stat_by_type(location, type)
+    
+    return success_response("/get_location_monthly_stat_by_type", stat)
