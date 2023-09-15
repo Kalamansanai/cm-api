@@ -78,8 +78,8 @@ def add_detector_to_user():
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-    (location_id, detector_id, type, detector_name) = cm_utils.validate_json(
-        ["location_id", "detector_id", "type", "detector_name"]
+    (location_id, detector_id, type, detector_name, charNum, comaPosition) = cm_utils.validate_json(
+        ["location_id", "detector_id", "type", "detector_name", "charNum", "comaPosition"]
     )
 
 
@@ -96,7 +96,9 @@ def add_detector_to_user():
         "detector_config": {
             "delay": 86400000,  # a day
             "cost": 1,
-            "flash": 0
+            "flash": 0,
+            "charNum": charNum,
+            "comaPosition": comaPosition
         },
         "type": type,
         "state": "init",
