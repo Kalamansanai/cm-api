@@ -31,8 +31,10 @@ def prepare_location_lineplot_data(location: Location):
 
 def prepare_piechart_data(detectors):
     pie_data = {}
+
+    current_month = datetime.datetime.now().month
     for detector in detectors:
-        monthly_cost = detector_monthly_consumption(detector) * detector.detector_config.cost
+        monthly_cost = detector_consumption_by_month(detector, current_month) * detector.detector_config.cost
         if detector.type in pie_data.keys():
             pie_data[detector.type] = pie_data[detector.type] + \
                 float(monthly_cost)
@@ -53,17 +55,15 @@ def prepare_piechart_data(detectors):
 
     return reformatted_data
 
-def detector_monthly_consumption(detector: Detector):
+def detector_consumption_by_month(detector: Detector, month: int):
     data = [log.get_json() for log in detector.logs]
     if data == []:
         return 0
 
-    current_month = datetime.datetime.now().month
-
     df = pd.DataFrame.from_dict(data)
     df["month"] = pd.DatetimeIndex(df["timestamp"]).month
 
-    df = df.loc[(df["month"] == current_month)]
+    df = df.loc[(df["month"] == month)]
 
     if df.empty:
         return 0
@@ -81,40 +81,68 @@ def make_config(detector_ids):
         "type": "dashboard",
         "containerWidth": "100%",
         "containerHeight": "100%",
-        "chartWidth": 50,
-        "chartHeight": 0,
-        "chartMargin": {
+        "chartwidth": 50,
+        "chartheight": 0,
+        "chartmargin": {
             "top": 5,
             "right": 30,
             "left": 20,
             "bottom": 5
         },
-        "YAxis": {
+        "yaxis": {
             "type": "number"
         },
-        "XAxis": {
-            "dataKey": "date"
+        "xaxis": {
+            "datakey": "date"
         },""
-        "CartesianGrid": {
-            "strokeDashArray": "3 3"
+        "cartesiangrid": {
+            "strokedasharray": "3 3"
         },
-        "Tooltip": {
+        "tooltip": {
             "enable": True
         },
-        "Legend": {
+        "legend": {
             "enable": True
         },
-        "Lines": lines
+        "lines": lines
 
     }
 
 def monthly_stat_by_type(location: Location, type: str):
-    
     detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
     if detectors == []:
         return error_response("monthly_stat_by_type", "no detector found")
 
-    values  = [detector_monthly_consumption(Detector(detector)) for detector in detectors if detector is not None]
+    current_month = datetime.datetime.now().month
+
+    values  = [detector_consumption_by_month(Detector(detector), current_month) for detector in detectors if detector is not None]
 
     return sum(values)
+
+def monthly_stat(location: Location):
+    types = ["water", "electricity", "gas"]
+
+    current_month = datetime.datetime.now().month
+
+    result = []
+    for i in range(5):
+        monthly_result = {}
+        for type in types:
+            detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
+            if detectors == []:
+                return error_response("monthly_stat", "no detector found")
+
+            values  = [detector_consumption_by_month(Detector(detector), current_month - i) * detector["detector_config"]["cost"] for detector in detectors if detector is not None]
+            monthly_result[type] = sum(values)
+
+        result.append({
+            "month": current_month - i, 
+            "water":  monthly_result["water"], 
+            "waterColor": "hsl(229, 70%, 50%)",
+            "electricity": monthly_result["electricity"], 
+            "electricityColor": "hsl(104, 70%, 50%)",
+            "gas": monthly_result["gas"],
+            "gasColor": "hsl(344, 70%, 50%)"})
+
+    return result
 

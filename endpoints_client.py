@@ -6,7 +6,7 @@ from cm_models import Detector, Location
 from startup import app, mongo
 from cm_types import error_response, success_response
 import cm_utils
-from plot_preprocess import prepare_detector_lineplot_data, prepare_location_lineplot_data, prepare_piechart_data, make_config, monthly_stat_by_type
+from plot_preprocess import prepare_detector_lineplot_data, prepare_location_lineplot_data, prepare_piechart_data, make_config, monthly_stat_by_type, monthly_stat
 
 
 @app.route("/get_logs_for_plot_by_detector/<detector_id>", methods=["GET"])
@@ -121,3 +121,15 @@ def get_location_monthly_stat_by_type(location_id):
     stat = monthly_stat_by_type(location, type)
     
     return success_response("/get_location_monthly_stat_by_type", stat)
+
+@app.route("/get_location_monthly_sums/<location_id>", methods=["POST"])
+def get_monthly_sums(location_id):
+    
+    location_raw = mongo.locations.find_one({"_id": ObjectId(location_id)})
+    if location_raw is None:
+        return error_response("/get_location_monthly_sums", "location is not found")
+    location = Location(location_raw)
+
+    stats = monthly_stat(location)
+
+    return success_response("/get_location_monthly_sums", stats)
