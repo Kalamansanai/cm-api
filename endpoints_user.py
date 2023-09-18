@@ -7,7 +7,7 @@ from startup import mongo
 import cm_utils
 from datetime import datetime
 from bson.objectid import ObjectId
-from cm_config import SESSION_PERSISTANCE_TIME, JWT_COOKIE_KEY 
+from cm_config import SESSION_PERSISTANCE_TIME, JWT_COOKIE_KEY, Logger 
 
 
 @app.route("/register", methods=["POST"])
