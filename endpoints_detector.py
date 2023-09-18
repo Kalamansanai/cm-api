@@ -30,9 +30,6 @@ def send_image(detector_id):
     img_raw = request.files["image"]
     img = Image.open(img_raw)
 
-    img_path = f"{IMAGE_PATH}/test.png"
-    img.save(img_path)
-
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
         return error_response("/send_image", "detector is not found")
@@ -41,7 +38,7 @@ def send_image(detector_id):
     error = None
 
     log_data = _detector.detect(
-        np.array(img), detector.detector_config.charNum, detector.detector_config.comaPosition)
+        np.array(img), detector.detector_config.charNum, detector.detector_config.comaPosition, detector_id)
 
     is_valid = V.validate(detector, log_data)
 
@@ -51,7 +48,7 @@ def send_image(detector_id):
     else:
         return error_response("/set_image", "detected value is not valid")
 
-    detector.img_path = img_path
+    detector.img_path = f"library/images/{detector_id}.png"
 
     mongo.detectors.find_one_and_update(
         {"detector_id": detector_id},
