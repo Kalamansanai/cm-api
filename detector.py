@@ -50,17 +50,25 @@ class _Detector:
             x1, y1, x2, y2 = np.round(box.xyxy[0].numpy()).astype(int)
             if box.data[0][4] >= thr:
                 if len(detections) < length:
-                    detections.append(box.data[0])
-                    orig = cv2.rectangle(orig, (x1+coords[0], y1+coords[1]), (x2+coords[0], y2+coords[1]), (0, 255, 0), 2)
+                    if len(detections) > 1:
+                        if abs(box.data[0][0]- detections[-1][0]) > (self.avg_dist(detections) / 2):
+                            detections.append(box.data[0])
+                            orig = cv2.rectangle(orig, (x1+coords[0], y1+coords[1]), (x2+coords[0], y2+coords[1]), (0, 255, 0), 2)
+                        else:
+                            r += 1
+                            orig = cv2.rectangle(orig, (x1+coords[0], y1+coords[1]), (x2+coords[0], y2+coords[1]), (0, 0, 255), 2)
+                    else:
+                        detections.append(box.data[0])
+                        orig = cv2.rectangle(orig, (x1+coords[0], y1+coords[1]), (x2+coords[0], y2+coords[1]), (0, 255, 0), 2)
                 else:
+                    r += 1
                     orig = cv2.rectangle(orig, (x1+coords[0], y1+coords[1]), (x2+coords[0], y2+coords[1]), (255, 0, 0), 2)
             else:
                 r += 1
                 orig = cv2.rectangle(orig, (x1+coords[0], y1+coords[1]), (x2+coords[0], y2+coords[1]), (255, 255, 0), 2)
+
         if r > 0:
             Logger.info(f"Removed {r} image(s) below threshold ({thr}).")
-
-        # TODO egymás alattiakat ne fogadjon el, csak egymás mellettieket
 
         # Create float number from list
         value = int(''.join([str(int(row[-1])) for row in detections])) / (10 ** decimal)
@@ -73,6 +81,16 @@ class _Detector:
         orig = cv2.putText(orig, f"Detected value: {value}", (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 4, cv2.LINE_AA)
 
         return value, orig
+    
+    def avg_dist(self, data):
+        avg = 0
+        for i in range(1, len(data)):
+            prev = data[i-1].numpy()
+            act = data[i].numpy()
+            avg += abs(act.data[0] - prev[0])
+
+        return avg / len(data)
+        
         
 
     def automatic_brightness_and_contrast(self, image, clip_hist_percent=1):
