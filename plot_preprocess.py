@@ -81,22 +81,22 @@ def make_config(detector_ids):
         "type": "dashboard",
         "containerWidth": "100%",
         "containerHeight": "100%",
-        "chartwidth": 50,
-        "chartheight": 0,
-        "chartmargin": {
+        "chartWidth": 50,
+        "chartHeight": 0,
+        "chartMargin": {
             "top": 5,
             "right": 30,
             "left": 20,
             "bottom": 5
         },
-        "yaxis": {
+        "yAxis": {
             "type": "number"
         },
-        "xaxis": {
+        "xAxis": {
             "datakey": "date"
         },""
-        "cartesiangrid": {
-            "strokedasharray": "3 3"
+        "cartesianGrid": {
+            "strokeDashArray": "3 3"
         },
         "tooltip": {
             "enable": True
