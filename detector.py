@@ -21,7 +21,7 @@ class _Detector:
 
     def detect_plates(self, img):
         result = self.plates_model.predict(source=[img], verbose=False)[0]
-        print(f"Detected {len(result)} plate(s).")
+        Logger.info(f"Detected {len(result)} plate(s).")
         result.boxes.data = sorted(result.boxes.data, key=lambda x: x[4], reverse=False)
 
         ret_img = None
@@ -57,11 +57,11 @@ class _Detector:
                 r += 1
                 orig = cv2.rectangle(orig, (x1+coords[0], y1+coords[1]), (x2+coords[0], y2+coords[1]), (255, 255, 0), 2)
         if r > 0:
-            print(f"Removed {r} image(s) below threshold ({thr}).")
+            Logger.info(f"Removed {r} image(s) below threshold ({thr}).")
 
         # Not enough numbers found
         if len(detections) < length:
-            print("Not enough numbers detected for valid number.")
+            Logger.info("Not enough numbers detected for valid number.")
             return None, orig
 
         # Sort by X coordinate
