@@ -22,7 +22,8 @@ class _Detector:
     def detect_plates(self, img):
         result = self.plates_model.predict(source=[img], verbose=False)[0]
         Logger.info(f"Detected {len(result)} plate(s).")
-        result.boxes.data = sorted(result.boxes.data, key=lambda x: x[4], reverse=False)
+        result.boxes.data = sorted(
+            result.boxes.data, key=lambda x: x[4], reverse=False)
 
         ret_img = None
         x1, y1 = None, None
@@ -39,8 +40,8 @@ class _Detector:
         result = self.number_model.predict(source=[img], verbose=False)[0]
         (f"Detected {len(result)} number(s).")
 
-        # Sort by size
-        result.boxes.data = sorted(result.boxes.data, key=lambda x: x[2]*x[3], reverse=False)
+        # Sort by X coordinate
+        result.boxes.data = sorted(result.boxes.data, key=lambda x: x[0], reverse=False)
 
         # Remove below threshold
         detections = []
@@ -59,17 +60,19 @@ class _Detector:
         if r > 0:
             Logger.info(f"Removed {r} image(s) below threshold ({thr}).")
 
+        # TODO egymás alattiakat ne fogadjon el, csak egymás mellettieket
+
+        # Create float number from list
+        value = int(''.join([str(int(row[-1])) for row in detections])) / (10 ** decimal)
+            
         # Not enough numbers found
         if len(detections) < length:
             Logger.info("Not enough numbers detected for valid number.")
+            orig = cv2.putText(orig, f"Detected value: {value}", (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 0, 0), 4, cv2.LINE_AA)
             return None, orig
+        orig = cv2.putText(orig, f"Detected value: {value}", (25, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 4, cv2.LINE_AA)
 
-        # Sort by X coordinate
-        detections = sorted(detections, key=lambda x: x[0], reverse=False)
-
-        # Create float number from list
-        nums = [str(int(row[-1])) for row in detections]
-        return int(''.join(nums)) / (10 ** decimal), orig
+        return value, orig
         
 
     def automatic_brightness_and_contrast(self, image, clip_hist_percent=1):
