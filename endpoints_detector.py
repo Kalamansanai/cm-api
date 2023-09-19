@@ -66,7 +66,7 @@ def send_image(detector_id):
     new_value = (log_data - detector.logs[-1].value) * detector.detector_config.cost
     location.add_monthly_log(detector, new_value)
 
-    return success_response("/send_image", "success") if error is None else error_response("/send_image", error)
+    return success_response("success") if error is None else error_response("/send_image", error)
 
 
 @app.route("/add_detector", methods=["POST"])
@@ -75,8 +75,8 @@ def add_detector_to_user():
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-    (location_id, detector_id, type, detector_name, charNum, comaPosition) = cm_utils.validate_json(
-        ["location_id", "detector_id", "type", "detector_name", "charNum", "comaPosition"]
+    (location_id, detector_id, type, detector_name, char_num, coma_position) = cm_utils.validate_json(
+        ["location_id", "detector_id", "type", "detector_name", "char_num", "coma_position"]
     )
 
 
@@ -94,8 +94,8 @@ def add_detector_to_user():
             "delay": 86400000,  # a day
             "cost": 1,
             "flash": 0,
-            "charNum": charNum,
-            "comaPosition": comaPosition
+            "charNum": char_num,
+            "comaPosition": coma_position
         },
         "type": type,
         "state": "init",
@@ -113,7 +113,7 @@ def add_detector_to_user():
         {"$push": {"detectors": new_detector}}
     )
 
-    return success_response("/add_detector", str(detector_id))
+    return success_response( str(detector_id))
 
 
 @app.route("/get_detector_config/<detector_id>")
@@ -144,7 +144,7 @@ def set_detector_config(detector_id):
         {"$set": {"detector_config": new_config}}
     )
 
-    return success_response("/set_detector_config", "config updates successfully")
+    return success_response("config updates successfully")
 
 
 @app.route("/detector/<detector_id>", methods=["DELETE"])
@@ -160,7 +160,7 @@ def delete_detector(detector_id):
         {"$pull": {"detectors": {"_id": ObjectId(detector_id)}}}
     )
 
-    return success_response("/delete_detector", "detector deleted successfully")
+    return success_response("detector deleted successfully")
 
 
 @app.route("/detector/<detector_id>/export")
@@ -182,7 +182,7 @@ def export_detector_log(detector_id):
 def detector_check_state(detector_id):
     detector = mongo.detectors.find_one({"detector_id": detector_id})
     changed = check_and_update_detectors_state(detector)
-    return success_response("/detector/check_state", changed)
+    return success_response(changed)
 
 
 @app.route("/get_all_detectors", methods=["GET"])
@@ -199,4 +199,4 @@ def get_all_detectors():
         return error_response("/get_all_detectors", "No location found for the user.")
     
     detectors = location.get("detectors", [])
-    return success_response("/get_all_detectors", detectors)
+    return success_response(detectors)
