@@ -16,7 +16,7 @@ def user_data(creation_time: str, name: str, email: str, password_salt: str, pas
         "config": {},
     }
 
-def success_response(endpoint, data):
+def success_response(data):
     token = request.cookies.get(JWT_COOKIE_KEY)
 
     response = make_response({"result": "ok", "data": data})

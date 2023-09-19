@@ -38,7 +38,7 @@ def add_user():
 
     # TODO: need to make the verification email send
 
-    return success_response("/add_user", f"{id}")
+    return success_response(f"{id}")
 
 
 @app.route("/user", methods=["GET"])
@@ -50,7 +50,7 @@ def get_user():
     user = mongo.users.find_one({"_id": ObjectId(user_cookie["id"])})
     user = User(user)
 
-    return success_response("/get_user", user.get_json())
+    return success_response(user.get_json())
 
 
 @app.route("/user", methods=["DELETE"])
@@ -63,7 +63,7 @@ def delete_users():
     name = request.json["name"]
     mongo.users.delete_one({"name": name})
     
-    return success_response("/delete_user", "User successfully deleted.")
+    return success_response("User successfully deleted.")
 
 
 @app.route("/login", methods=["POST"])
@@ -89,7 +89,7 @@ def logout():
         return abort(401)
 
     response = make_response(success_response(
-        "/logout", "logout successfully"
+        "logout successfully"
     ))
 
     return cm_utils.set_cookie_time(response, 0)
@@ -105,4 +105,4 @@ def set_user_config():
     mongo.users.update_one({"email": user_data['email']}, {
         "$set": {"config": new_config}})
 
-    return success_response("/set_config", "config updated successfully")
+    return success_response("config updated successfully")

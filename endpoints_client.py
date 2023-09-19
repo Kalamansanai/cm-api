@@ -23,7 +23,7 @@ def get_logs_for_plot_by_detector(detector_id):
     data = prepare_detector_lineplot_data(detector)
     config = make_config([detector_id])
     
-    return success_response("get_logs_for_plot", {
+    return success_response( {
         "data": data,
         "config": config
         })
@@ -44,7 +44,7 @@ def get_logs_for_plot_by_location(location_id):
     #TODO: make_config gets all the detectors we want to make as a line 
     config = make_config([detector_id])
     
-    return success_response("get_logs_for_plot", {
+    return success_response({
         "data": data,
         "config": config
         })
@@ -58,7 +58,7 @@ def get_location_pie(location_id):
     detectors_raw = mongo.detectors.find({"location_id": location_id})
     detectors = [Detector(detector_row) for detector_row in detectors_raw]
 
-    return success_response("get_user_pie", prepare_piechart_data(detectors))
+    return success_response(prepare_piechart_data(detectors))
 
 
 @app.route("/get_detector_with_logs/<detector_id>", methods=["GET"])
@@ -72,7 +72,7 @@ def get_detector_with_logs(detector_id):
         return error_response("/get_detector_with_logs", "detector is None")
     detector = Detector(detector_raw)
 
-    return success_response("/get_detector_logs", detector.get_json())
+    return success_response( detector.get_json())
 
 
 @app.route("/get_detector_img/<detector_id>", methods=["GET"])
@@ -103,7 +103,7 @@ def get_location():
         return error_response("/get_location", "location is None")
     location = Location(location_raw)
 
-    return success_response("/get_location", location.get_json())
+    return success_response( location.get_json())
 
 @app.route("/get_location_monthly_stat_by_type/<location_id>", methods=["POST"])
 def get_location_monthly_stat_by_type(location_id):
@@ -120,7 +120,7 @@ def get_location_monthly_stat_by_type(location_id):
 
     stat = monthly_stat_by_type(location, type)
     
-    return success_response("/get_location_monthly_stat_by_type", stat)
+    return success_response( stat)
 
 @app.route("/get_location_monthly_sums/<location_id>", methods=["POST"])
 def get_monthly_sums(location_id):
@@ -132,4 +132,4 @@ def get_monthly_sums(location_id):
 
     stats = monthly_stat(location)
 
-    return success_response("/get_location_monthly_sums", stats)
+    return success_response(stats)
