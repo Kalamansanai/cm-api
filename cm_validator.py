@@ -1,8 +1,8 @@
 import numpy as np
 from cm_config import Logger
-from cm_models import Detector
 from startup import mongo
 import time
+from domain.detector import Detector
 
 
 # TODO

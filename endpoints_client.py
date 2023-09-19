@@ -1,7 +1,8 @@
 from bson.objectid import ObjectId
 from flask import abort, send_file
 from cm_config import Logger
-from cm_models import Detector, Location
+from domain.detector import Detector
+from domain.location import Location
 
 from startup import app, mongo
 from cm_types import error_response, success_response

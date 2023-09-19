@@ -1,4 +1,5 @@
-from cm_models import Detector, Log
+from domain.detector import Detector
+from domain.log import Log
 from startup import mongo
 from datetime import datetime
 import json

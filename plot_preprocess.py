@@ -3,9 +3,10 @@ import datetime
 import pandas as pd
 import numpy as np
 
-from cm_config import PLOT_COLOR, TYPE_COLORS
+from cm_config import TYPE_COLORS
 from startup import mongo
-from cm_models import Detector, Location
+from domain.detector import Detector
+from domain.location import Location
 from cm_types import error_response
 
 

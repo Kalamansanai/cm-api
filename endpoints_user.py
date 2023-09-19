@@ -1,6 +1,5 @@
 from flask import abort, request, make_response
 from cm_detector import check_and_update_detectors_state
-from cm_models import User
 from startup import app
 from cm_types import success_response, error_response, user_data
 from startup import mongo
@@ -8,6 +7,7 @@ import cm_utils
 from datetime import datetime
 from bson.objectid import ObjectId
 from cm_config import SESSION_PERSISTANCE_TIME, JWT_COOKIE_KEY, Logger 
+from domain.user import User
 
 
 @app.route("/register", methods=["POST"])
