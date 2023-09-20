@@ -64,23 +64,6 @@ def delete_detector(detector_id):
     return success_response("detector deleted successfully")
 
 
-@app.route("/get_all_detectors", methods=["GET"])
-def get_all_detectors():
-    user_data = auth_token()  
-    if user_data is None:
-        return error_response("/get_all_detectors", "no user signed in")
-    
-    user_id = user_data["id"]  
-    
-    location = mongo.locations.find_one({"user_id": ObjectId(user_id)})
-    
-    if location is None:
-        return error_response("/get_all_detectors", "No location found for the user.")
-    
-    #TODO: refactor this function
-    detectors = location.get("detectors", [])
-    return success_response(detectors)
-
 @app.route("/get_detector_img/<detector_id>", methods=["GET"])
 def get_detector_img(detector_id):
     user_data = auth_token()

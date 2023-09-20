@@ -10,11 +10,11 @@ def add_user():
     user = mongo.users.find_one({"email": email})
     if user is not None:
         return error_response("/user", "email already registered")
-    user: dict = {}
 
+    #TODO: refactor this to the user entity(create_user)
+    user: dict = {}
     salt = create_token()
     hash = _hash(password + salt)
-
     user = data_for_db_creation(utc_now(), name, email,
                      salt, hash, create_token())
 

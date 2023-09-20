@@ -31,8 +31,6 @@ def delete_users():
     return success_response("User successfully deleted.")
 
 
-
-
 @app.route("/set_config", methods=["POST"])
 def set_user_config():
     (new_config, ) = validate_json(["new_config"])

@@ -1,5 +1,5 @@
 from startup import app, mongo
-from api.api_utils import success_response, error_response, validate_json, hash as _hash, set_cookie_time, auth_token
+from api.api_utils import error_response, validate_json, hash as _hash
 from flask import abort, make_response
 from cm_config import JWT_COOKIE_KEY, SESSION_PERSISTANCE_TIME
 import jwt
@@ -14,24 +14,12 @@ def login():
     if not user["password_salt"] or not user["password_hash"]:
         return error_response("/login", "password error")
 
+    #TODO: refactor this to the user entity(user.check_password(psw: str))
     hash = _hash(password + user["password_salt"])
     if user["password_hash"] != hash:
         return error_response("/login", "invalid password")
 
     return create_set_cookie_response(user=user)
-
-
-@app.route("/logout", methods=["GET"])
-def logout():
-    user = auth_token()
-    if user is None:
-        return abort(401)
-
-    response = make_response(success_response(
-        "logout successfully"
-    ))
-
-    return set_cookie_time(response, 0)
 
 def create_set_cookie_response(user: dict):
 

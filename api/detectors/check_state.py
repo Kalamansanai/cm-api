@@ -12,6 +12,7 @@ def detector_check_state(detector_id):
     changed = check_and_update_detectors_state(detector_raw)
     return success_response(changed)
 
+#TODO: refactor to user entity(detector.check_and_update_state())
 def check_and_update_detectors_state(detector: Detector):
     changed = False
 
