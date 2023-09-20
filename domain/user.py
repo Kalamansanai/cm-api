@@ -18,3 +18,14 @@ class User():
             "config": self.config,
         }
 
+def data_for_db_creation(creation_time: int, name: str, email: str, password_salt: str, password_hash: str, token: str):
+    return {
+        "creation_time": creation_time,
+        "name": name,
+        "email": email,
+        "password_salt": password_salt,
+        "password_hash": password_hash,
+        "email_verification_token": token,
+        "config": {},
+    }
+

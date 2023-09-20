@@ -1,10 +1,10 @@
 from startup import app, mongo
-import cm_utils
-from cm_types import error_response, success_response, user_data
+from domain.user import data_for_db_creation
+from api.api_utils import success_response, error_response, validate_json, create_token, hash as _hash, utc_now
 
 @app.route("/register", methods=["POST"])
 def add_user():
-    name, email, password = cm_utils.validate_json(
+    name, email, password = validate_json(
         ["name", "email", "password"])
 
     user = mongo.users.find_one({"email": email})
@@ -12,11 +12,11 @@ def add_user():
         return error_response("/user", "email already registered")
     user: dict = {}
 
-    salt = cm_utils.create_token()
-    hash = cm_utils.hash(password + salt)
+    salt = create_token()
+    hash = _hash(password + salt)
 
-    user = user_data(cm_utils.utc_now(), name, email,
-                     salt, hash, cm_utils.create_token())
+    user = data_for_db_creation(utc_now(), name, email,
+                     salt, hash, create_token())
 
     user_id = mongo.users.insert_one(user).inserted_id
 

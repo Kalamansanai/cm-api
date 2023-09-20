@@ -6,12 +6,12 @@ from domain.log import Log
 from startup import app, mongo
 from PIL import Image
 import pandas as pd
-from cm_types import success_response, error_response
 import numpy as np
 from bson.objectid import ObjectId
 import cm_validator as V
 from detector import _Detector
 _detector = _Detector("library/plates.pt", "library/numbers.pt")
+from api.api_utils import success_response, error_response
 
 @app.route("/send_image/<detector_id>", methods=["POST"])
 def send_image(detector_id):

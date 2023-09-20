@@ -4,8 +4,8 @@ import tempfile
 import os
 from datetime import datetime
 from flask import send_file
-from cm_types import error_response
 import pandas as pd
+from api.api_utils import error_response
 
 @app.route("/detector/<detector_id>/export")
 def export_detector_log(detector_id):

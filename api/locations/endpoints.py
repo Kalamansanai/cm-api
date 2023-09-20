@@ -1,13 +1,12 @@
 from startup import app, mongo
-import cm_utils
 from flask import abort
-from cm_types import success_response, error_response
 from domain.location import Location
 from bson.objectid import ObjectId
+from api.api_utils import auth_token, error_response, success_response
 
 @app.route("/get_location", methods=["GET"])
 def get_location():
-    user_data = cm_utils.auth_token()
+    user_data = auth_token()
     if user_data is None:
         return abort(401)
 

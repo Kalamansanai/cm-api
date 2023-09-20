@@ -1,8 +1,8 @@
 from startup import app, mongo
-from cm_types import success_response, error_response
 from domain.detector import Detector
 from domain.log import Log
 from datetime import datetime
+from api.api_utils import success_response, error_response
 
 @app.route("/detector/<detector_id>/check_state")
 def detector_check_state(detector_id):

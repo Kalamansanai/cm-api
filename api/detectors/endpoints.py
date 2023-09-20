@@ -1,10 +1,22 @@
 from bson.objectid import ObjectId
 from startup import app, mongo
-from cm_types import success_response, error_response
-import cm_utils
 from cm_config import DETECTOR_CONFIG
-from cm_detector import check_and_update_detectors_state
 from flask import abort, send_file
+from api.api_utils import success_response, error_response, auth_token, validate_json
+from domain.detector import Detector
+
+@app.route("/get_detector_with_logs/<detector_id>", methods=["GET"])
+def get_detector_with_logs(detector_id):
+    user_data = auth_token()
+    if user_data is None:
+        return abort(401)
+
+    detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
+    if detector_raw is None:
+        return error_response("/get_detector_with_logs", "detector is None")
+    detector = Detector(detector_raw)
+
+    return success_response( detector.get_json())
 
 @app.route("/get_detector_config/<detector_id>")
 def get_detector_config(detector_id):
@@ -23,11 +35,11 @@ def get_detector_config(detector_id):
 
 @app.route("/set_detector_config/<detector_id>", methods=["POST"])
 def set_detector_config(detector_id):
-    user_data = cm_utils.auth_token()
+    user_data = auth_token()
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-    (new_config,) = cm_utils.validate_json(["new_config"])
+    (new_config,) = validate_json(["new_config"])
 
     mongo.detectors.update_one(
         {"detector_id": detector_id},
@@ -38,7 +50,7 @@ def set_detector_config(detector_id):
 
 @app.route("/detector/<detector_id>", methods=["DELETE"])
 def delete_detector(detector_id):
-    user_data = cm_utils.auth_token()
+    user_data = auth_token()
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
@@ -54,7 +66,7 @@ def delete_detector(detector_id):
 
 @app.route("/get_all_detectors", methods=["GET"])
 def get_all_detectors():
-    user_data = cm_utils.auth_token()  
+    user_data = auth_token()  
     if user_data is None:
         return error_response("/get_all_detectors", "no user signed in")
     
@@ -71,7 +83,7 @@ def get_all_detectors():
 
 @app.route("/get_detector_img/<detector_id>", methods=["GET"])
 def get_detector_img(detector_id):
-    user_data = cm_utils.auth_token()
+    user_data = auth_token()
     if user_data is None:
         return abort(401)
 

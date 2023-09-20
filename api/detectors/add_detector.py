@@ -1,19 +1,17 @@
 from bson.objectid import ObjectId
 from startup import app, mongo
-import cm_utils
-from cm_types import error_response, success_response
-from cm_detector import id_uniqueness, detector_valid
 from cm_config import MODE
 import json
+from api.api_utils import success_response, error_response, auth_token, validate_json 
 
 
 @app.route("/add_detector", methods=["POST"])
 def add_detector_to_user():
-    user_data = cm_utils.auth_token()
+    user_data = auth_token()
     if user_data is None:
         return error_response("/add_detector", "no user signed in")
 
-    (location_id, detector_id, type, detector_name, char_num, coma_position) = cm_utils.validate_json(
+    (location_id, detector_id, type, detector_name, char_num, coma_position) = validate_json(
         ["location_id", "detector_id", "type", "detector_name", "char_num", "coma_position"]
     )
 
