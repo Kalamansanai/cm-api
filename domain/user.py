@@ -1,4 +1,4 @@
-from api.api_utils import hash as _hash
+from api.api_utils import hash as _hash, create_token
 
 class User():
 
@@ -25,16 +25,19 @@ class User():
         if self.password_hash == hash:
             return True
         return False
-                
 
-def data_for_db_creation(creation_time: int, name: str, email: str, password_salt: str, password_hash: str, token: str):
+
+def create_user_for_mongo(creation_time: int, name: str, email: str, password: str):
+    salt = create_token()
+    hash = _hash(password + salt)
+    email_token = create_token()
     return {
-        "creation_time": creation_time,
-        "name": name,
-        "email": email,
-        "password_salt": password_salt,
-        "password_hash": password_hash,
-        "email_verification_token": token,
-        "config": {},
-    }
+            "creation_time": creation_time,
+            "name": name,
+            "email": email,
+            "password_salt": salt,
+            "password_hash": hash,
+            "email_verification_token": email_token,
+            "config": {},
+        }
 

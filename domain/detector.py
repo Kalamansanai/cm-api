@@ -41,6 +41,24 @@ class Detector():
             "img_path": self.img_path
         }
 
+def create_detector_for_mongo(detector_id: str, location_id: str, detector_name: str, char_num: int, coma_position: int, type: str):
+    return {
+        "detector_id": detector_id,
+        "location_id": location_id,
+        "detector_name": detector_name,
+        "detector_config": {
+            "delay": 86400000,  # a day
+            "cost": 1,
+            "flash": 0,
+            "charNum": char_num,
+            "comaPosition": coma_position
+        },
+        "type": type,
+        "state": "init",
+        "logs": [],
+        "img_path": ""
+    }
+
 class DetectorConfig():
 
     def __init__(self, config_json: dict):

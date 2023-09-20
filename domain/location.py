@@ -33,6 +33,12 @@ class Location():
             "monthly_logs": [log.get_json() for log in self.monthly_logs]
         }
 
+    def id_unique(self, detector_id):
+        for detector in self.detectors:
+            if detector.detector_id == detector_id:
+                return False
+        return True
+
     def add_monthly_log(self, detector: Detector, new_value: int):
         date = f"{datetime.now().year}.{str(datetime.now().month).zfill(2)}"
 
