@@ -1,3 +1,5 @@
+from api.api_utils import hash as _hash
+
 class User():
 
     def __init__(self, user_json: dict):
@@ -17,6 +19,13 @@ class User():
             "email": self.email,
             "config": self.config,
         }
+
+    def same_password(self, psw: str):
+        hash = _hash(psw + self.password_salt)
+        if self.password_hash == hash:
+            return True
+        return False
+                
 
 def data_for_db_creation(creation_time: int, name: str, email: str, password_salt: str, password_hash: str, token: str):
     return {
