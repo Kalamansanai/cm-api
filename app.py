@@ -1,9 +1,10 @@
 from startup import app
-import endpoints_client
 from cm_config import APP_HOST, APP_PORT, MODE
 
 from api.detectors import send_image, add_detector, basic, export
 from api.users import register, logging, endpoints
+from api.diagrams import endpoints
+from api.locations import endpoints
 
 @app.route("/")
 def hello_w():

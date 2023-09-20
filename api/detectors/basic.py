@@ -4,6 +4,7 @@ from cm_types import success_response, error_response
 import cm_utils
 from cm_config import DETECTOR_CONFIG
 from cm_detector import check_and_update_detectors_state
+from flask import abort, send_file
 
 @app.route("/get_detector_config/<detector_id>")
 def get_detector_config(detector_id):
@@ -50,6 +51,7 @@ def delete_detector(detector_id):
 
     return success_response("detector deleted successfully")
 
+#TODO: into separate file
 @app.route("/detector/<detector_id>/check_state")
 def detector_check_state(detector_id):
     detector_raw: dict | None = mongo.detectors.find_one({"detector_id": detector_id})
@@ -72,5 +74,21 @@ def get_all_detectors():
     if location is None:
         return error_response("/get_all_detectors", "No location found for the user.")
     
+    #TODO: refactor this function
     detectors = location.get("detectors", [])
     return success_response(detectors)
+
+@app.route("/get_detector_img/<detector_id>", methods=["GET"])
+def get_detector_img(detector_id):
+    user_data = cm_utils.auth_token()
+    if user_data is None:
+        return abort(401)
+
+    detector = mongo.detectors.find_one({"detector_id": detector_id})
+    if detector is None:
+        return error_response("/get_detector_with_logs", "detector is None")
+
+    try:
+        return send_file(detector["img_path"], as_attachment=True)
+    except:
+        return abort(400)
