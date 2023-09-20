@@ -1,7 +1,7 @@
 from startup import app
 from cm_config import APP_HOST, APP_PORT, MODE
 
-from api.detectors import send_image, add_detector, basic, export
+from api.detectors import endpoints, send_image, add_detector, export, check_state
 from api.users import register, logging, endpoints
 from api.diagrams import endpoints
 from api.locations import endpoints

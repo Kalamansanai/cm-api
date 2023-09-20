@@ -1,19 +1,16 @@
+from startup import app, mongo
+from cm_types import success_response, error_response
 from domain.detector import Detector
 from domain.log import Log
-from startup import mongo
 from datetime import datetime
-import json
 
-
-def id_uniqueness(location_id, detector_id):
-    detectors = mongo.detectors.find({"location_id": location_id})
-
-    for detector in detectors:
-        if detector["detector_id"] == detector_id:
-            return True
-
-    return False
-
+@app.route("/detector/<detector_id>/check_state")
+def detector_check_state(detector_id):
+    detector_raw: dict | None = mongo.detectors.find_one({"detector_id": detector_id})
+    if detector_raw is None:
+        return error_response("check_state", "no detector found")
+    changed = check_and_update_detectors_state(detector_raw)
+    return success_response(changed)
 
 def check_and_update_detectors_state(detector: Detector):
     changed = False
@@ -38,8 +35,3 @@ def check_and_update_detectors_state(detector: Detector):
             changed = True
 
     return changed
-
-def detector_valid(detector_id: str):
-    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
-        return False
-

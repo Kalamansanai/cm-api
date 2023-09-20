@@ -4,6 +4,7 @@ import cm_utils
 from cm_types import error_response, success_response
 from cm_detector import id_uniqueness, detector_valid
 from cm_config import MODE
+import json
 
 
 @app.route("/add_detector", methods=["POST"])
@@ -51,3 +52,17 @@ def add_detector_to_user():
     )
 
     return success_response( str(detector_id))
+
+def id_uniqueness(location_id, detector_id):
+    detectors = mongo.detectors.find({"location_id": location_id})
+
+    for detector in detectors:
+        if detector["detector_id"] == detector_id:
+            return True
+
+    return False
+
+
+def detector_valid(detector_id: str):
+    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
+        return False

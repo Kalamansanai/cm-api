@@ -51,15 +51,6 @@ def delete_detector(detector_id):
 
     return success_response("detector deleted successfully")
 
-#TODO: into separate file
-@app.route("/detector/<detector_id>/check_state")
-def detector_check_state(detector_id):
-    detector_raw: dict | None = mongo.detectors.find_one({"detector_id": detector_id})
-    if detector_raw is None:
-        return error_response("check_state", "no detector found")
-    changed = check_and_update_detectors_state(detector_raw)
-    return success_response(changed)
-
 
 @app.route("/get_all_detectors", methods=["GET"])
 def get_all_detectors():
