@@ -1,6 +1,7 @@
 from enum import Enum
 from domain.log import Log
 import json
+import pandas as pd
 
 class Detector():
 
@@ -41,6 +42,21 @@ class Detector():
             "logs": [log.get_json() for log in self.logs],
             "img_path": self.img_path
         }
+
+    def consumption_by_month(self, month: int):
+        data = [log.get_json() for log in self.logs]
+        if data == []:
+            return 0
+
+        df = pd.DataFrame.from_dict(data)
+        df["month"] = pd.DatetimeIndex(df["timestamp"]).month
+
+        df = df.loc[(df["month"] == month)]
+
+        if df.empty:
+            return 0
+
+        return df.iloc[-1]["value"] - df.iloc[0]["value"]
 
 def create_detector_for_mongo(detector_id: str, location_id: str, detector_name: str, char_num: int, coma_position: int, type: str):
     return {

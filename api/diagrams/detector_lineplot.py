@@ -2,16 +2,14 @@ from flask import abort
 from startup import app, mongo
 from api.api_utils import success_response, error_response, auth_token
 from domain.detector import Detector
+from api import login_required
 
 import pandas as pd
 import numpy as np
 
 @app.route("/get_logs_for_plot_by_detector/<detector_id>", methods=["GET"])
-def get_logs_for_plot_by_detector(detector_id):
-    user_data = auth_token()
-    if user_data is None:
-        return abort(401)
-
+@login_required
+def get_logs_for_plot_by_detector(_, detector_id):
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
         return error_response("/get_logs_for_plot_by_detector", "detector is None")

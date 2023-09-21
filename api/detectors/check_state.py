@@ -3,9 +3,11 @@ from domain.detector import Detector
 from domain.log import Log
 from datetime import datetime
 from api.api_utils import success_response, error_response
+from api import login_required
 
 @app.route("/detector/<detector_id>/check_state")
-def detector_check_state(detector_id):
+@login_required
+def detector_check_state(_, detector_id):
     detector_raw: dict | None = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
         return error_response("check_state", "no detector found")

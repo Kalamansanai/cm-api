@@ -6,9 +6,11 @@ from datetime import datetime
 from flask import send_file
 import pandas as pd
 from api.api_utils import error_response
+from api import login_required
 
 @app.route("/detector/<detector_id>/export")
-def export_detector_log(detector_id):
+@login_required
+def export_detector_log(_,detector_id):
     detector_raw: dict | None = mongo.detectors.find_one({"_id": ObjectId(detector_id)})
     if detector_raw is None:
         return error_response("detector export", "no detector found!")

@@ -11,7 +11,7 @@ import json
 
 @app.route("/add_detector", methods=["POST"])
 @login_required
-def add_detector_to_user():
+def add_detector_to_user(_):
     (location_id, detector_id, type, detector_name, char_num, coma_position) = validate_json(
         ["location_id", "detector_id", "type", "detector_name", "char_num", "coma_position"]
     )

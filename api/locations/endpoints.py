@@ -1,15 +1,15 @@
 from startup import app, mongo
-from flask import abort
 from domain.location import Location
-from bson.objectid import ObjectId
 from api.api_utils import auth_token, error_response, success_response
+from api import login_required
+
+from bson.objectid import ObjectId
+from flask import abort
+
 
 @app.route("/get_location", methods=["GET"])
-def get_location():
-    user_data = auth_token()
-    if user_data is None:
-        return abort(401)
-
+@login_required
+def get_location(user_data):
     location_raw = mongo.locations.find_one(
         {"user_id": ObjectId(user_data["id"])})
     if location_raw is None:

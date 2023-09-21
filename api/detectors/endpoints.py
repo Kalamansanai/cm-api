@@ -16,6 +16,7 @@ def get_detector_with_logs(user_data, detector_id):
 
     return success_response( detector.get_json())
 
+#TODO: validate detector
 @app.route("/get_detector_config/<detector_id>")
 def get_detector_config(detector_id):
     detector = mongo.detectors.find_one(
@@ -32,10 +33,8 @@ def get_detector_config(detector_id):
 
 
 @app.route("/set_detector_config/<detector_id>", methods=["POST"])
-def set_detector_config(detector_id):
-    user_data = auth_token()
-    if user_data is None:
-        return error_response("/add_detector", "no user signed in")
+@login_required
+def set_detector_config(_, detector_id):
 
     (new_config,) = validate_json(["new_config"])
 
@@ -47,10 +46,8 @@ def set_detector_config(detector_id):
     return success_response("config updates successfully")
 
 @app.route("/detector/<detector_id>", methods=["DELETE"])
-def delete_detector(detector_id):
-    user_data = auth_token()
-    if user_data is None:
-        return error_response("/add_detector", "no user signed in")
+@login_required
+def delete_detector(user_data, detector_id):
 
     mongo.detectors.delete_one({"_id": ObjectId(detector_id)})
 
@@ -63,10 +60,8 @@ def delete_detector(detector_id):
 
 
 @app.route("/get_detector_img/<detector_id>", methods=["GET"])
-def get_detector_img(detector_id):
-    user_data = auth_token()
-    if user_data is None:
-        return abort(401)
+@login_required
+def get_detector_img(_, detector_id):
 
     detector = mongo.detectors.find_one({"detector_id": detector_id})
     if detector is None:
