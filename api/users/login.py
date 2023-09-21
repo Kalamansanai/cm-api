@@ -24,7 +24,7 @@ def login():
 def create_set_cookie_response(user: User):
 
     token = jwt.encode(payload={
-        "id": user.id,
+        "id": str(user.id),
         "email": user.email
     }, key=JWT_SECRET)
 

@@ -1,5 +1,6 @@
 from enum import Enum
 from domain.log import Log
+import json
 
 class Detector():
 
@@ -58,6 +59,10 @@ def create_detector_for_mongo(detector_id: str, location_id: str, detector_name:
         "logs": [],
         "img_path": ""
     }
+
+def detector_valid(detector_id: str):
+    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
+        return False
 
 class DetectorConfig():
 

@@ -2,18 +2,16 @@ from startup import app, mongo
 from cm_config import MODE
 from api.api_utils import success_response, error_response, auth_token, validate_json 
 from domain.location import Location 
-from domain.detector import create_detector_for_mongo
+from domain.detector import create_detector_for_mongo, detector_valid
+from api import login_required
 
 from bson.objectid import ObjectId
 import json
 
 
 @app.route("/add_detector", methods=["POST"])
+@login_required
 def add_detector_to_user():
-    user_data = auth_token()
-    if user_data is None:
-        return error_response("/add_detector", "no user signed in")
-
     (location_id, detector_id, type, detector_name, char_num, coma_position) = validate_json(
         ["location_id", "detector_id", "type", "detector_name", "char_num", "coma_position"]
     )
@@ -43,7 +41,3 @@ def add_detector_to_user():
 
     return success_response( str(detector_id))
 
-
-def detector_valid(detector_id: str):
-    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
-        return False

@@ -4,14 +4,12 @@ from startup import mongo
 from bson.objectid import ObjectId
 from domain.user import User
 from api.api_utils import success_response, auth_token, validate_json
+from api import login_required
 
 
 @app.route("/user", methods=["GET"])
-def get_user():
-    user_cookie = auth_token()
-    if user_cookie is None:
-        abort(401)
-
+@login_required
+def get_user(user_cookie):
     user = mongo.users.find_one({"_id": ObjectId(user_cookie["id"])})
     user = User(user)
 

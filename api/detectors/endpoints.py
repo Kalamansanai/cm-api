@@ -4,13 +4,11 @@ from cm_config import DETECTOR_CONFIG
 from flask import abort, send_file
 from api.api_utils import success_response, error_response, auth_token, validate_json
 from domain.detector import Detector
+from api import login_required
 
 @app.route("/get_detector_with_logs/<detector_id>", methods=["GET"])
-def get_detector_with_logs(detector_id):
-    user_data = auth_token()
-    if user_data is None:
-        return abort(401)
-
+@login_required
+def get_detector_with_logs(user_data, detector_id):
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
         return error_response("/get_detector_with_logs", "detector is None")
