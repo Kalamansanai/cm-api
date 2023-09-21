@@ -1,19 +1,20 @@
-from cm_models import Detector, Log
-from startup import mongo
+from startup import app, mongo
+from domain.detector import Detector
+from domain.log import Log
 from datetime import datetime
-import json
+from api.api_utils import success_response, error_response
+from api import login_required
 
+@app.route("/detector/<detector_id>/check_state")
+@login_required
+def detector_check_state(_, detector_id):
+    detector_raw: dict | None = mongo.detectors.find_one({"detector_id": detector_id})
+    if detector_raw is None:
+        return error_response("check_state", "no detector found")
+    changed = check_and_update_detectors_state(detector_raw)
+    return success_response(changed)
 
-def id_uniqueness(location_id, detector_id):
-    detectors = mongo.detectors.find({"location_id": location_id})
-
-    for detector in detectors:
-        if detector["detector_id"] == detector_id:
-            return True
-
-    return False
-
-
+#TODO: refactor to user entity(detector.check_and_update_state())
 def check_and_update_detectors_state(detector: Detector):
     changed = False
 
@@ -37,8 +38,3 @@ def check_and_update_detectors_state(detector: Detector):
             changed = True
 
     return changed
-
-def detector_valid(detector_id: str):
-    if detector_id not in json.load(open('library/detector_list.json'))["id"]:
-        return False
-
