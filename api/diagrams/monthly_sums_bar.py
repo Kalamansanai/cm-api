@@ -19,6 +19,8 @@ def get_monthly_sums(_, location_id):
     location = Location(location_raw)
 
     stats = monthly_stat(location)
+    if stats is None:
+        return error_response("", "error")
 
     return success_response(stats)
 
@@ -34,7 +36,7 @@ def monthly_stat(location: Location):
         for type in types:
             detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
             if detectors == []:
-                return error_response("monthly_stat", "no detector found")
+                return None 
 
             values  = [Detector(detector).consumption_by_month(current_month - i) * detector["detector_config"]["cost"] for detector in detectors if detector is not None]
             monthly_result[type] = sum(values)

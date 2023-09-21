@@ -20,13 +20,15 @@ def get_location_monthly_stat_by_type(_, location_id):
     location = Location(location_raw)
 
     stat = monthly_stat_by_type(location, type)
+    if stat is None:
+        return error_response("", "error")
     
     return success_response( stat)
 
 def monthly_stat_by_type(location: Location, type: str):
     detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
     if detectors == []:
-        return error_response("monthly_stat_by_type", "no detector found")
+        return None
 
     current_month = datetime.now().month
 
