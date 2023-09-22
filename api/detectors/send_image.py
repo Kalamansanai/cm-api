@@ -12,10 +12,11 @@ import cm_validator as V
 from detector import _Detector
 _detector = _Detector("library/plates.pt", "library/numbers.pt")
 from api.api_utils import success_response, error_response
-from api import login_required
+from api import detector_id_validation_required
 
 #TODO: detector validation required
 @app.route("/send_image/<detector_id>", methods=["POST"])
+@detector_id_validation_required
 def send_image(detector_id):
     img_raw = request.files["image"]
     img = Image.open(img_raw)

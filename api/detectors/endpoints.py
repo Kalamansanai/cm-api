@@ -4,7 +4,7 @@ from cm_config import DETECTOR_CONFIG
 from flask import abort, send_file
 from api.api_utils import success_response, error_response, auth_token, validate_json
 from domain.detector import Detector
-from api import login_required
+from api import login_required, detector_id_validation_required
 
 @app.route("/get_detector_with_logs/<detector_id>", methods=["GET"])
 @login_required
@@ -16,8 +16,8 @@ def get_detector_with_logs(user_data, detector_id):
 
     return success_response( detector.get_json())
 
-#TODO: validate detector
 @app.route("/get_detector_config/<detector_id>")
+@detector_id_validation_required
 def get_detector_config(detector_id):
     detector = mongo.detectors.find_one(
         {"detector_id": detector_id}
@@ -48,7 +48,6 @@ def set_detector_config(_, detector_id):
 @app.route("/detector/<detector_id>", methods=["DELETE"])
 @login_required
 def delete_detector(user_data, detector_id):
-
     mongo.detectors.delete_one({"_id": ObjectId(detector_id)})
 
     mongo.locations.find_one_and_update(

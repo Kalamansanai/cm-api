@@ -1,7 +1,3 @@
-import numpy as np
-from cm_config import Logger
-from startup import mongo
-import time
 from domain.detector import Detector
 
 
@@ -11,3 +7,4 @@ def validate(detector: Detector, new_value):
         return True
     else:
         return False
+
