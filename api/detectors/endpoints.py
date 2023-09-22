@@ -35,7 +35,6 @@ def get_detector_config(detector_id):
 @app.route("/set_detector_config/<detector_id>", methods=["POST"])
 @login_required
 def set_detector_config(_, detector_id):
-
     (new_config,) = validate_json(["new_config"])
 
     mongo.detectors.update_one(
@@ -61,12 +60,11 @@ def delete_detector(user_data, detector_id):
 @app.route("/get_detector_img/<detector_id>", methods=["GET"])
 @login_required
 def get_detector_img(_, detector_id):
-
-    detector = mongo.detectors.find_one({"detector_id": detector_id})
-    if detector is None:
-        return error_response("detector is None")
+    image_obj = mongo.images.find_one({"detector_id": detector_id})
+    if image_obj is None:
+        return error_response("detector is not found")
 
     try:
-        return send_file(detector["img_path"], as_attachment=True)
+        return send_file(image_obj["img_path"], as_attachment=True)
     except:
         return abort(400)

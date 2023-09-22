@@ -16,7 +16,6 @@ class Detector():
         self.detector_config: DetectorConfig = DetectorConfig(
             detector_json["detector_config"])
         self.logs: list[Log] = [Log(log) for log in detector_json["logs"]]
-        self.img_path: str = detector_json["img_path"]
 
     def get_db(self):
         return {
@@ -28,7 +27,6 @@ class Detector():
             "state": str(self.state),
             "detector_config": self.detector_config.get_json(),
             "logs": [log.get_json() for log in self.logs],
-            "img_path": self.img_path
         }
 
     def get_json(self):
@@ -41,7 +39,6 @@ class Detector():
             "state": str(self.state),
             "detector_config": self.detector_config.get_json(),
             "logs": [log.get_json() for log in self.logs],
-            "img_path": self.img_path
         }
 
     def consumption_by_month(self, month: int):
@@ -74,7 +71,6 @@ def create_detector_for_mongo(detector_id: str, location_id: str, detector_name:
         "type": type,
         "state": "init",
         "logs": [],
-        "img_path": ""
     }
 
 def detector_valid(detector_id: str):
