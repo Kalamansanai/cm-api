@@ -1,12 +1,11 @@
 from startup import app, mongo
 from cm_config import MODE
-from api.api_utils import success_response, error_response, auth_token, validate_json 
+from api.api_utils import success_response, error_response, validate_json 
 from domain.location import Location 
 from domain.detector import create_detector_for_mongo, detector_valid
 from api import login_required
 
 from bson.objectid import ObjectId
-import json
 
 
 @app.route("/add_detector", methods=["POST"])

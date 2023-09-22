@@ -1,7 +1,6 @@
 from cm_config import MODE
 from domain.detector import detector_valid
 
-from flask import request
 from functools import wraps
 from api.api_utils import auth_token, error_response
 

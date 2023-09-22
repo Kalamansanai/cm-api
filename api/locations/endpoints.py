@@ -1,10 +1,9 @@
 from startup import app, mongo
 from domain.location import Location
-from api.api_utils import auth_token, error_response, success_response
+from api.api_utils import error_response, success_response
 from api import login_required
 
 from bson.objectid import ObjectId
-from flask import abort
 
 
 @app.route("/get_location", methods=["GET"])
