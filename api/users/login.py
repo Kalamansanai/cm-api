@@ -17,7 +17,7 @@ def login():
     user = User(user_raw)
 
     if not user.same_password(password):
-        return error_response("/login", "invalid password")
+        return error_response("invalid password")
 
     return create_set_cookie_response(user)
 

@@ -12,15 +12,14 @@ from bson.objectid import ObjectId
 @app.route("/get_location_monthly_sums/<location_id>", methods=["POST"])
 @login_required
 def get_monthly_sums(_, location_id):
-    
     location_raw = mongo.locations.find_one({"_id": ObjectId(location_id)})
     if location_raw is None:
-        return error_response("/get_location_monthly_sums", "location is not found")
+        return error_response("location is not found")
     location = Location(location_raw)
 
     stats = monthly_stat(location)
     if stats is None:
-        return error_response("", "error")
+        return error_response("error")
 
     return success_response(stats)
 

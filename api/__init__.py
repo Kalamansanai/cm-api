@@ -6,6 +6,6 @@ def login_required(func):
     def decorated_function(*args, **kwargs):
         user_data = auth_token()
         if user_data is None:
-            return error_response("/add_detector", "no user signed in")
+            return error_response("no user signed in")
         return func(user_data, *args, **kwargs)
     return decorated_function

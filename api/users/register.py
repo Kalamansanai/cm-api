@@ -9,7 +9,7 @@ def add_user():
 
     user = mongo.users.find_one({"email": email})
     if user is not None:
-        return error_response("/user", "email already registered")
+        return error_response("email already registered")
 
     user = create_user_for_mongo(utc_now(), name, email, password)
 

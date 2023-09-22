@@ -13,7 +13,7 @@ def get_location(user_data):
     location_raw = mongo.locations.find_one(
         {"user_id": ObjectId(user_data["id"])})
     if location_raw is None:
-        return error_response("/get_location", "location is None")
+        return error_response("location is None")
     location = Location(location_raw)
 
     return success_response( location.get_json())

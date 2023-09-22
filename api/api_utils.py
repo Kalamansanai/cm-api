@@ -5,8 +5,7 @@ from secrets import token_hex
 from time import time
 import jwt
 
-def error_response(endpoint: str, data):
-    # Logger.error(f"error response - endpoint: {endpoint} - data: {data}")
+def error_response(data):
     return {"result": "error", "data": data}
 
 

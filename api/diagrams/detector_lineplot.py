@@ -1,6 +1,5 @@
-from flask import abort
 from startup import app, mongo
-from api.api_utils import success_response, error_response, auth_token
+from api.api_utils import success_response, error_response
 from domain.detector import Detector
 from api import login_required
 
@@ -12,7 +11,7 @@ import numpy as np
 def get_logs_for_plot_by_detector(_, detector_id):
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
-        return error_response("/get_logs_for_plot_by_detector", "detector is None")
+        return error_response("detector is None")
     detector = Detector(detector_raw)
 
     data = prepare_detector_lineplot_data(detector)

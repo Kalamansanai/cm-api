@@ -10,7 +10,7 @@ from api import login_required
 def detector_check_state(_, detector_id):
     detector_raw: dict | None = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
-        return error_response("check_state", "no detector found")
+        return error_response("no detector found")
     changed = check_and_update_detectors_state(detector_raw)
     return success_response(changed)
 

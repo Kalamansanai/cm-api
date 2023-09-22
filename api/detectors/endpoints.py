@@ -11,7 +11,7 @@ from api import login_required
 def get_detector_with_logs(user_data, detector_id):
     detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
     if detector_raw is None:
-        return error_response("/get_detector_with_logs", "detector is None")
+        return error_response("detector is None")
     detector = Detector(detector_raw)
 
     return success_response( detector.get_json())
@@ -24,7 +24,7 @@ def get_detector_config(detector_id):
     )
 
     if detector is None:
-        return error_response("/get_detector_config", "detector has not added to any user yet !")
+        return error_response("detector has not added to any user yet !")
 
     config = detector["detector_config"]
     config.update(DETECTOR_CONFIG)
@@ -65,7 +65,7 @@ def get_detector_img(_, detector_id):
 
     detector = mongo.detectors.find_one({"detector_id": detector_id})
     if detector is None:
-        return error_response("/get_detector_with_logs", "detector is None")
+        return error_response("detector is None")
 
     try:
         return send_file(detector["img_path"], as_attachment=True)
