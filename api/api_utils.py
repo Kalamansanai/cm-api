@@ -5,8 +5,7 @@ from secrets import token_hex
 from time import time
 import jwt
 
-def error_response(endpoint: str, data):
-    # Logger.error(f"error response - endpoint: {endpoint} - data: {data}")
+def error_response(data):
     return {"result": "error", "data": data}
 
 
@@ -46,18 +45,6 @@ def hash(text):
 def utc_now():
     return int(time())
 
-def set_cookie_time(response, time):
-    token = request.cookies.get(JWT_COOKIE_KEY)
-
-    response.set_cookie(
-        key=JWT_COOKIE_KEY,
-        value=token,
-        max_age=0,
-        secure=True,
-        samesite="None"
-    )
-
-    return response
 
 def auth_token():
     token = request.cookies.get(JWT_COOKIE_KEY)

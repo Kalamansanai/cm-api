@@ -13,7 +13,7 @@ from api import login_required
 def export_detector_log(_,detector_id):
     detector_raw: dict | None = mongo.detectors.find_one({"_id": ObjectId(detector_id)})
     if detector_raw is None:
-        return error_response("detector export", "no detector found!")
+        return error_response("no detector found!")
 
     logs_table = pd.DataFrame.from_records(detector_raw["logs"])
 
