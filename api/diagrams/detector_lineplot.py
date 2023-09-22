@@ -14,7 +14,8 @@ def get_logs_for_plot_by_detector(_, detector_id):
         return error_response("detector is None")
     detector = Detector(detector_raw)
 
-    data = prepare_detector_lineplot_data(detector)
+    # data = prepare_detector_lineplot_data(detector)
+    data = []
     config = make_config([detector_id])
     
     return success_response( {
