@@ -3,6 +3,7 @@ from api.api_utils import success_response, error_response
 from cm_config import TYPE_COLORS
 from api import login_required
 
+from datetime import datetime
 import polars as pl
 
 @app.route("/get_location_pie/<location_id>", methods=["GET"])
@@ -15,14 +16,18 @@ def get_location_pie(_, location_id):
     return success_response(prepare_piechart_data(logs_raw))
 
 def prepare_piechart_data(logs: list[dict]):
-    pie_data = {}
-
     df = pl.from_dicts(logs)
 
-    df = df.with_columns((df['value'] - df['value'].shift()).alias("consumption"))
+    current_month = datetime.now().month
+
+    df = df.with_columns(
+            pl.when(df["timestamp"].dt.month() == current_month)
+            .then((df['value'] - df['value'].shift()))
+            .otherwise(0)
+            .alias("consumption")
+        )
 
     grouped = df.group_by('type').agg(pl.col('consumption').sum())
-    print(grouped)
 
     reformatted_data = []
     for type in grouped.rows():
