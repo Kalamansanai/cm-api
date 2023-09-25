@@ -62,8 +62,8 @@ def create_detector_for_mongo(detector_id: str, location_id: str, detector_name:
             "delay": 86400000,  # a day
             "cost": 1,
             "flash": 0,
-            "charNum": char_num,
-            "comaPosition": coma_position
+            "char_num": char_num,
+            "coma_position": coma_position
         },
         "type": type,
         "state": "init",
@@ -78,9 +78,9 @@ def detector_valid(detector_id: str):
 class DetectorConfig():
 
     def __init__(self, config_json: dict):
-        self.charNum = config_json["charNum"] if "charNum" in config_json.keys(
+        self.char_num = config_json["char_num"] if "char_num" in config_json.keys(
         ) else ""
-        self.comaPosition = config_json["comaPosition"] if "comaPosition" in config_json.keys(
+        self.coma_position = config_json["coma_position"] if "coma_position" in config_json.keys(
         ) else ""
         self.delay: int = config_json["delay"] if "delay" in config_json.keys(
         ) else 0
@@ -91,8 +91,8 @@ class DetectorConfig():
 
     def get_json(self):
         return {
-            "char_num": self.charNum,
-            "coma_position": self.comaPosition,
+            "char_num": self.char_num,
+            "coma_position": self.coma_position,
             "delay": self.delay,
             "cost": self.cost,
             "flash": self.flash

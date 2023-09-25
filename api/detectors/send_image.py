@@ -30,7 +30,7 @@ def send_image(detector_id):
     error = None
 
     log_data = _detector.detect(
-        np.array(img), detector.detector_config.charNum, detector.detector_config.comaPosition, detector_id)
+        np.array(img), detector.detector_config.char_num, detector.detector_config.coma_position, detector_id)
 
     is_valid = V.validate(detector, log_data)
 
@@ -41,11 +41,11 @@ def send_image(detector_id):
     else:
         return error_response("detected value is not valid")
 
-    detector.img_path = f"library/images/{detector_id}.png"
+    img_path = f"library/images/{detector_id}.png"
 
     mongo.images.insert_one({
             "detector_id": detector_id,
-            "img_path": detector.img_path
+            "img_path":img_path
         })
 
     mongo.detectors.find_one_and_update(
