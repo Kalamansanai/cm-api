@@ -15,7 +15,6 @@ class Detector():
         self.state: DetectorState = map_state(detector_json["state"])
         self.detector_config: DetectorConfig = DetectorConfig(
             detector_json["detector_config"])
-        self.logs: list[Log] = [Log(log) for log in detector_json["logs"]]
 
     def get_db(self):
         return {
@@ -26,7 +25,6 @@ class Detector():
             "type": str(self.type),
             "state": str(self.state),
             "detector_config": self.detector_config.get_json(),
-            "logs": [log.get_json() for log in self.logs],
         }
 
     def get_json(self):
@@ -38,23 +36,22 @@ class Detector():
             "type": str(self.type),
             "state": str(self.state),
             "detector_config": self.detector_config.get_json(),
-            "logs": [log.get_json() for log in self.logs],
         }
 
-    def consumption_by_month(self, month: int):
-        data = [log.get_json() for log in self.logs]
-        if data == []:
-            return 0
-
-        df = pd.DataFrame.from_dict(data)
-        df["month"] = pd.DatetimeIndex(df["timestamp"]).month
-
-        df = df.loc[(df["month"] == month)]
-
-        if df.empty:
-            return 0
-
-        return df.iloc[-1]["value"] - df.iloc[0]["value"]
+    # def consumption_by_month(self, month: int):
+    #     data = [log.get_json() for log in self.logs]
+    #     if data == []:
+    #         return 0
+    #
+    #     df = pd.DataFrame.from_dict(data)
+    #     df["month"] = pd.DatetimeIndex(df["timestamp"]).month
+    #
+    #     df = df.loc[(df["month"] == month)]
+    #
+    #     if df.empty:
+    #         return 0
+    #
+    #     return df.iloc[-1]["value"] - df.iloc[0]["value"]
 
 def create_detector_for_mongo(detector_id: str, location_id: str, detector_name: str, char_num: int, coma_position: int, type: str):
     return {
@@ -94,8 +91,8 @@ class DetectorConfig():
 
     def get_json(self):
         return {
-            "charNum": self.charNum,
-            "comaPosition": self.comaPosition,
+            "char_num": self.charNum,
+            "coma_position": self.comaPosition,
             "delay": self.delay,
             "cost": self.cost,
             "flash": self.flash

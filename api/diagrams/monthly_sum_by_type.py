@@ -25,12 +25,13 @@ def get_location_monthly_sum_by_type(_, location_id):
     return success_response( stat)
 
 def monthly_sum_by_type(location: Location, type: str):
-    detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
-    if detectors == []:
-        return None
-
-    current_month = datetime.now().month
-
-    values  = [Detector(detector).consumption_by_month(current_month ) for detector in detectors if detector is not None]
-
-    return sum(values)
+    # detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
+    # if detectors == []:
+    #     return None
+    #
+    # current_month = datetime.now().month
+    #
+    # values  = [Detector(detector).consumption_by_month(current_month ) for detector in detectors if detector is not None]
+    #
+    # return sum(values)
+    return None

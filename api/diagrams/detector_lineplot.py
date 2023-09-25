@@ -24,19 +24,20 @@ def get_logs_for_plot_by_detector(_, detector_id):
         })
 
 def prepare_detector_lineplot_data(detector: Detector):
-    value_id = detector.detector_id
-
-    if len(detector.logs) == 0:
-        return None
-    df = pd.DataFrame.from_records([log.get_json() for log in detector.logs])
-    df["date"] = df["timestamp"].map(
-            lambda x: x.strftime("%m.%d-%H:%M"))
-    df[value_id] = df["value"].rolling(2).apply(
-        lambda x: np.round(x.iloc[1] - x.iloc[0], 3)).fillna(0)
-
-    reformatted_data = df[["date", value_id]].to_dict(orient="records")
-
-    return reformatted_data
+    # value_id = detector.detector_id
+    #
+    # if len(detector.logs) == 0:
+    #     return None
+    # df = pd.DataFrame.from_records([log.get_json() for log in detector.logs])
+    # df["date"] = df["timestamp"].map(
+    #         lambda x: x.strftime("%m.%d-%H:%M"))
+    # df[value_id] = df["value"].rolling(2).apply(
+    #     lambda x: np.round(x.iloc[1] - x.iloc[0], 3)).fillna(0)
+    #
+    # reformatted_data = df[["date", value_id]].to_dict(orient="records")
+    #
+    # return reformatted_data
+    return None
 
 def make_config(detector_ids):
 

@@ -25,29 +25,30 @@ def get_monthly_sums(_, location_id):
 
 
 def monthly_stat(location: Location):
-    types = ["water", "electricity", "gas"]
-
-    current_month = datetime.now().month
-
-    result = []
-    for i in range(5):
-        monthly_result = {}
-        for type in types:
-            detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
-            if detectors == []:
-                return None 
-
-            values  = [Detector(detector).consumption_by_month(current_month - i) * detector["detector_config"]["cost"] for detector in detectors if detector is not None]
-            monthly_result[type] = sum(values)
-
-        result.append({
-            "month": current_month - i, 
-            "water":  monthly_result["water"], 
-            "waterColor": "hsl(229, 70%, 50%)",
-            "electricity": monthly_result["electricity"], 
-            "electricityColor": "hsl(104, 70%, 50%)",
-            "gas": monthly_result["gas"],
-            "gasColor": "hsl(344, 70%, 50%)"})
-
-    return result
+    # types = ["water", "electricity", "gas"]
+    #
+    # current_month = datetime.now().month
+    #
+    # result = []
+    # for i in range(5):
+    #     monthly_result = {}
+    #     for type in types:
+    #         detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
+    #         if detectors == []:
+    #             return None 
+    #
+    #         values  = [Detector(detector).consumption_by_month(current_month - i) * detector["detector_config"]["cost"] for detector in detectors if detector is not None]
+    #         monthly_result[type] = sum(values)
+    #
+    #     result.append({
+    #         "month": current_month - i, 
+    #         "water":  monthly_result["water"], 
+    #         "waterColor": "hsl(229, 70%, 50%)",
+    #         "electricity": monthly_result["electricity"], 
+    #         "electricityColor": "hsl(104, 70%, 50%)",
+    #         "gas": monthly_result["gas"],
+    #         "gasColor": "hsl(344, 70%, 50%)"})
+    #
+    # return result
+    return None
 
