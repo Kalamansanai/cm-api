@@ -1,53 +1,62 @@
-from domain.detector import Detector
 from domain.location import Location
 from api import login_required
 from startup import app, mongo
 from api.api_utils import success_response, error_response
 
 from datetime import datetime
-import pandas as pd
 from bson.objectid import ObjectId
+import polars as pl
 
 
 @app.route("/get_location_monthly_sums/<location_id>", methods=["POST"])
 @login_required
 def get_monthly_sums(_, location_id):
-    location_raw = mongo.locations.find_one({"_id": ObjectId(location_id)})
-    if location_raw is None:
-        return error_response("location is not found")
-    location = Location(location_raw)
+    logs_raw = mongo.logs.find({"location_id":location_id})
+    if logs_raw is None:
+        return error_response("logs not found")
 
-    stats = monthly_stat(location)
+    stats = monthly_stat(logs_raw)
     if stats is None:
         return error_response("error")
 
     return success_response(stats)
 
 
-def monthly_stat(location: Location):
-    types = ["water", "electricity", "gas"]
+def monthly_stat(logs):
+    df = pl.from_dicts(logs)
 
-    current_month = datetime.now().month
+    df = df.with_columns(
+                (df["timestamp"].dt.month().alias("month")),
+        )
 
-    result = []
-    for i in range(5):
-        monthly_result = {}
-        for type in types:
-            detectors: list[dict | None]  = [mongo.detectors.find_one({"_id": detector.id}) for detector in location.detectors if detector.type == type]
-            if detectors == []:
-                return None 
+    df = df.sort("type")
 
-            values  = [Detector(detector).consumption_by_month(current_month - i) * detector["detector_config"]["cost"] for detector in detectors if detector is not None]
-            monthly_result[type] = sum(values)
+    df = df.with_columns(
+            pl.when((df["type"].shift() == df["type"]))
+            .then((df['value'] - df['value'].shift()))
+            .otherwise(0)
+            .alias("consumption")
+        )
 
-        result.append({
-            "month": current_month - i, 
-            "water":  monthly_result["water"], 
-            "waterColor": "hsl(229, 70%, 50%)",
-            "electricity": monthly_result["electricity"], 
-            "electricityColor": "hsl(104, 70%, 50%)",
-            "gas": monthly_result["gas"],
-            "gasColor": "hsl(344, 70%, 50%)"})
+    grouped = df.group_by(['month', 'type']).agg(pl.col('consumption').sum())
 
-    return result
+    reformatted_data = []
+    for name, data in grouped.sort("month").group_by("month"):
+        water_value = data.filter(data["type"] == "water").rows()[0][2] if not data.filter(data["type"] == "water").is_empty() else 0
+        electricity_value = data.filter(data["type"] == "electricity").rows()[0][2] if not data.filter(data["type"] == "electricity").is_empty() else 0
+        gas_value = data.filter(data["type"] == "gas").rows()[0][2] if not data.filter(data["type"] == "gas").is_empty() else 0
 
+        reformatted_data.append(
+                {
+                    "month": name,
+                    'water': water_value,
+                    "waterColor": "hsl(229, 70%, 50%)",
+                    "electricity": electricity_value, 
+                    "electricityColor": "hsl(104, 70%, 50%)",
+                    "gas": gas_value,
+                    "gasColor": "hsl(344, 70%, 50%)"
+                }
+            )
+
+
+    return reformatted_data
