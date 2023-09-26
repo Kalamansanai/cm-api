@@ -16,6 +16,7 @@ google-cloud-vision = "*"
 python-dotenv = "*"
 sklearn = "*"
 scikit-learn = "*"
+pytest = "*"
 polars = "*"
 
 [dev-packages]
