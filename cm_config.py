@@ -14,6 +14,8 @@ elif MODE == "prod":
     DB_NAME = "cm_prod"
 elif MODE == "demo":
     DB_NAME = "cm_demo"
+elif MODE == "test":
+    DB_NAME = "cm_test"
 
         
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
