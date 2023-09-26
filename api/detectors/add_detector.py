@@ -20,8 +20,8 @@ def add_detector_to_user(_):
         return error_response("location is not found")
     location = Location(location_raw) 
 
-    if MODE == "prod" and not detector_valid(detector_id):
-        return error_response("This detector ID is not valid.")
+    # if MODE == "prod" and not detector_valid(detector_id):
+    #     return error_response("This detector ID is not valid.")
 
     if not detector_id_unique(location_id, detector_id):
         return error_response("A detector is already registered with this id !")
