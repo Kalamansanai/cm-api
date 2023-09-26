@@ -11,8 +11,8 @@ import polars as pl
 @app.route("/get_location_monthly_sums/<location_id>", methods=["POST"])
 @login_required
 def get_monthly_sums(_, location_id):
-    logs_raw = mongo.logs.find({"location_id":location_id})
-    if logs_raw is None:
+    logs_raw = list(mongo.logs.find({"location_id":location_id}))
+    if len(logs_raw) == 0:
         return error_response("logs not found")
 
     stats = monthly_stat(logs_raw)
