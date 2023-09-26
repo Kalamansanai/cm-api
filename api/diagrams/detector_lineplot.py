@@ -1,6 +1,6 @@
 from startup import app, mongo
 from api.api_utils import success_response, error_response
-from domain.detector import Detector
+from domain.log import Log
 from api import login_required
 
 import pandas as pd
@@ -9,12 +9,11 @@ import numpy as np
 @app.route("/get_logs_for_plot_by_detector/<detector_id>", methods=["GET"])
 @login_required
 def get_logs_for_plot_by_detector(_, detector_id):
-    detector_raw = mongo.detectors.find_one({"detector_id": detector_id})
-    if detector_raw is None:
-        return error_response("detector is None")
-    detector = Detector(detector_raw)
+    logs_raw = list(mongo.logs.find({"detector_id": detector_id}))
+    if logs_raw == []:
+        return error_response("no log found")
 
-    data = prepare_detector_lineplot_data(detector)
+    data = prepare_detector_lineplot_data(logs_raw)
     config = make_config([detector_id])
     
     return success_response( {
@@ -22,12 +21,10 @@ def get_logs_for_plot_by_detector(_, detector_id):
         "config": config
         })
 
-def prepare_detector_lineplot_data(detector: Detector):
-    value_id = detector.detector_id
+def prepare_detector_lineplot_data(logs: list[dict]):
+    value_id = logs[0]["detector_id"]
 
-    if len(detector.logs) == 0:
-        return None
-    df = pd.DataFrame.from_records([log.get_json() for log in detector.logs])
+    df = pd.DataFrame.from_records(logs)
     df["date"] = df["timestamp"].map(
             lambda x: x.strftime("%m.%d-%H:%M"))
     df[value_id] = df["value"].rolling(2).apply(

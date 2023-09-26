@@ -9,7 +9,7 @@ APP_PORT: str | None = os.getenv("APP_PORT")
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME="cm_dev"
 if MODE == "dev":
-    DB_NAME = "cm_dev"
+    DB_NAME = "test_1"
 elif MODE == "prod":
     DB_NAME = "cm_prod"
 elif MODE == "demo":
