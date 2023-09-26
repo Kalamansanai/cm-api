@@ -18,7 +18,6 @@ def add_user():
     location = {
         "user_id": user_id,
         "name": "init",
-        "detectors": [],
         "monthly_logs": []
     }
     mongo.locations.insert_one(location)

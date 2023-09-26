@@ -23,7 +23,7 @@ def add_detector_to_user(_):
     if MODE == "prod" and not detector_valid(detector_id):
         return error_response("This detector ID is not valid.")
 
-    if not location.id_unique( detector_id):
+    if not detector_id_unique(location_id, detector_id):
         return error_response("A detector is already registered with this id !")
 
     new_detector = create_detector_for_mongo(detector_id, location_id, detector_name, char_num, coma_position, type) 
@@ -40,3 +40,9 @@ def add_detector_to_user(_):
 
     return success_response( str(detector_id))
 
+def detector_id_unique(location_id: str, detector_id: str):
+    detectors = mongo.detectors.find({"location_id": location_id})
+    for detector in detectors:
+        if detector["detector_id"] == detector_id:
+            return False
+    return True
