@@ -24,16 +24,10 @@ def monthly_sum_by_type(logs, type: str):
     current_month = datetime.now().month
 
     df = df.with_columns(
-            pl.when((df["timestamp"].dt.month() == current_month) )
+            pl.when((df["timestamp"].dt.month() == current_month) & (df["type"].shift() == type) & (df["type"] == type))
             .then((df['value'] - df['value'].shift()))
             .otherwise(0)
             .alias("consumption")
         )
 
-    grouped = df.group_by('type').agg(pl.col('consumption').sum())
-    try:
-        row = grouped.row(by_predicate=(pl.col("type") == type))
-        print(row[1])
-        return row[1] 
-    except:
-        return 0
+    return df["consumption"].sum()
