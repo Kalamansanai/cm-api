@@ -7,7 +7,7 @@ from domain.user import User
 def testUser():
     return {
         "_id": 1,
-        "creation_time": datetime.datetime.now(),
+        "creation_time": datetime.date,
         "name": "test",
         "email": "test@gmail.com",
         "password_salt": "43224",
@@ -18,7 +18,7 @@ def test_get_json(testUser):
     test_User = User(testUser)
     response = test_User.get_json()
     assert response["id"] == "1"
-    assert response["creation_time"] == datetime.datetime.now()
+    assert response["creation_time"] == datetime.date
     assert response["name"] == "test"
     assert response["email"] == "test@gmail.com"
     assert response["config"] == ""

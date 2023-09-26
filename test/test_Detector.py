@@ -8,10 +8,10 @@ def test_detector_valid():
     assert response_true is True
     assert response_false is False
 def test_DetectorConfig_get_json():
-    test_config = DetectorConfig({"charNum": 544})
+    test_config = DetectorConfig({"char_num": 544})
     response = test_config.get_json()
-    assert response["charNum"] == 544
-    assert response["comaPosition"] == ""
+    assert response["char_num"] == 544
+    assert response["coma_position"] == ""
     assert response["delay"] == 0
 def test_map_state():
     test_init = "init"
