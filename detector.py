@@ -50,7 +50,7 @@ class _Detector:
             x1, y1, x2, y2 = np.round(box.xyxy[0].numpy()).astype(int)
             if box.data[0][4] >= thr:
                 if len(detections) < length:
-                    if len(detections) > 1:
+                    if len(detections) > 0:
                         if abs(box.data[0][0]- detections[-1][0]) > (self.avg_dist(detections) / 2):
                             detections.append(box.data[0])
                             orig = cv2.rectangle(orig, (x1+coords[0], y1+coords[1]), (x2+coords[0], y2+coords[1]), (0, 255, 0), 2)
