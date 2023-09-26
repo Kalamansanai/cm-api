@@ -20,8 +20,10 @@ def prepare_piechart_data(logs: list[dict]):
 
     current_month = datetime.now().month
 
+    df = df.sort("type")
+
     df = df.with_columns(
-            pl.when(df["timestamp"].dt.month() == current_month)
+            pl.when((df["timestamp"].dt.month() == current_month) & (df["type"].shift() == df["type"]))
             .then((df['value'] - df['value'].shift()))
             .otherwise(0)
             .alias("consumption")
