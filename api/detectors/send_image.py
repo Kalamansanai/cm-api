@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import request
+from domain.detector_image import DetectorImage
 from domain.location import Location
 from domain.detector import Detector
 from domain.log import Log
@@ -29,32 +30,38 @@ def send_image(detector_id):
     error = None
 
     log_data = _detector.detect(
-        np.array(img), detector.detector_config.charNum, detector.detector_config.comaPosition, detector_id)
+        np.array(img), detector.detector_config.char_num, detector.detector_config.coma_position, detector_id)
 
     is_valid = V.validate(detector, log_data)
 
     if is_valid:
-        new_log = Log({"timestamp": datetime.now(), "value": log_data})
-        detector.logs.append(new_log)
+        new_log = Log({"location_id": detector.location_id, "detector_id": detector_id, "type": detector.type, "timestamp": datetime.now(), "value": log_data})
+        mongo.logs.insert_one(new_log.get_json())
+        # detector.logs.append(new_log)
     else:
         return error_response("detected value is not valid")
 
-    detector.img_path = f"library/images/{detector_id}.png"
+    img_path = f"library/images/{detector_id}.png"
+
+    mongo.images.insert_one({
+            "detector_id": detector_id,
+            "img_path":img_path
+        })
 
     mongo.detectors.find_one_and_update(
         {"detector_id": detector_id},
         {"$set": detector.get_db()}
     )
 
-    location_raw = mongo.locations.find_one(
-        {"_id": ObjectId(detector.location_id)},
-    )
-    if(location_raw is None):
-        return error_response("location is not found")
-
-    location = Location(location_raw)
-
-    new_value = (log_data - detector.logs[-1].value) * detector.detector_config.cost
-    location.add_monthly_log(detector, new_value)
+    # location_raw = mongo.locations.find_one(
+    #     {"_id": ObjectId(detector.location_id)},
+    # )
+    # if(location_raw is None):
+    #     return error_response("location is not found")
+    #
+    # location = Location(location_raw)
+    #
+    # new_value = (log_data - detector.logs[-1].value) * detector.detector_config.cost
+    # location.add_monthly_log(detector, new_value)
 
     return success_response("success") if error is None else error_response(error)

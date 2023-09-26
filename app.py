@@ -5,6 +5,7 @@ from api.detectors import endpoints, send_image, add_detector, export, check_sta
 from api.users import register, endpoints, login, logout
 from api.diagrams import detector_lineplot, locaion_monthly_pie, monthly_sum_by_type, monthly_sums_bar
 from api.locations import endpoints
+from api.logs import get_by_detector
 
 @app.route("/")
 def hello_w():
