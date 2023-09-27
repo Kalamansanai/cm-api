@@ -12,7 +12,7 @@ def login():
     email, password = validate_json(["email", "password"])
     user_raw = mongo.users.find_one({"email": email})
     if user_raw is None:
-        return abort(401)
+        return error_response("no user found with this email")
 
     user = User(user_raw)
 
