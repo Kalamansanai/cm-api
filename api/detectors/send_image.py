@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import request
+from cm_config import IMAGE_PATH
 from domain.detector_image import DetectorImage
 from domain.location import Location
 from domain.detector import Detector
@@ -41,7 +42,7 @@ def send_image(detector_id):
     else:
         return error_response("detected value is not valid")
 
-    img_path = f"library/images/{detector_id}.png"
+    img_path = f"{IMAGE_PATH}/{detector_id}.png"
 
     mongo.images.insert_one({
             "detector_id": detector_id,
