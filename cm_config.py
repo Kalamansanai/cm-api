@@ -1,13 +1,14 @@
 import logging
 import os
+from dotenv import dotenv_values
 
-MODE = os.getenv("MODE")
+config = dotenv_values("library/.env")
 
-APP_HOST: str | None = os.getenv("APP_HOST")
-APP_PORT: str | None = os.getenv("APP_PORT")
+MODE = config["MODE"]
+APP_HOST = config["APP_HOST"]
+APP_PORT = config["APP_PORT"]
+MONGO_URI = config["MONGO_URI"] 
 
-MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME="cm_dev"
 if MODE == "dev":
     DB_NAME = "test_1"
 elif MODE == "prod":
@@ -20,7 +21,7 @@ elif MODE == "test":
         
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-IMAGE_PATH = os.getenv("IMAGE_PATH")
+IMAGE_PATH = config["IMAGE_PATH"]
 
 DETECTOR_CONFIG = {
     "quality": 12,
@@ -33,11 +34,11 @@ LOG_PATH = (
     "library/api_log.log"
 )
 
-JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_SECRET = config["JWT_SECRET"]
 JWT_COOKIE_KEY = "cm-user-token"
 SESSION_PERSISTANCE_TIME = 1800 if MODE == "prod" else 30000000
 SESSION_COOKIE_HTTPS_ONLY = False
-SESSION_KEY_SALT = os.getenv("SESSION_KEY_SALT")
+SESSION_KEY_SALT = config["SESSION_KEY_SALT"]
 
 _logger = logging.Logger("cm-logger", level=logging.DEBUG)
 _fh = logging.FileHandler(LOG_PATH)

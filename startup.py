@@ -4,9 +4,6 @@ from pymongo import MongoClient
 
 import certifi
 
-from dotenv import load_dotenv
-load_dotenv("library/.env")
-
 from cm_config import DB_NAME
 
 from cm_config import MONGO_URI, MODE
