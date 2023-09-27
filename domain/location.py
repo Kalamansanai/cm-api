@@ -11,8 +11,6 @@ class Location():
         self.id = location_json["_id"]
         self.user_id: str = location_json["user_id"]
         self.name: str = location_json["name"]
-        self.detectors: list[Detector] = [
-            Detector(detector) for detector in location_json["detectors"]]
         self.monthly_logs: list[Monthly_log] = [
             Monthly_log(log) for log in location_json["monthly_logs"]]
 
@@ -20,7 +18,6 @@ class Location():
         return {
             "user_id": self.user_id,
             "name": self.name,
-            "detectors": [detector.get_db() for detector in self.detectors],
             "monthly_logs": [log.get_json() for log in self.monthly_logs]
         }
 
@@ -29,15 +26,8 @@ class Location():
             "id": str(self.id),
             "user_id": str(self.user_id),
             "name": self.name,
-            "detectors": [detector.get_json() for detector in self.detectors],
             "monthly_logs": [log.get_json() for log in self.monthly_logs]
         }
-
-    def id_unique(self, detector_id):
-        for detector in self.detectors:
-            if detector.detector_id == detector_id:
-                return False
-        return True
 
     def add_monthly_log(self, detector: Detector, new_value: int):
         date = f"{datetime.now().year}.{str(datetime.now().month).zfill(2)}"

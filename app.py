@@ -1,7 +1,7 @@
 from startup import app
 from cm_config import APP_HOST, APP_PORT, MODE
 
-from api.detectors import endpoints, send_image, add_detector, export, check_state
+from api.detectors import endpoints, send_image, add_detector, export, check_state, get_by_location
 from api.users import register, endpoints, login, logout
 from api.diagrams import detector_lineplot, locaion_monthly_pie, monthly_sum_by_type, monthly_sums_bar
 from api.locations import endpoints

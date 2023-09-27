@@ -10,8 +10,8 @@ from datetime import datetime
 def get_location_monthly_sum_by_type(_, location_id):
     (type, ) = validate_json(["type"]) 
 
-    logs_raw = mongo.logs.find({"location_id": location_id})
-    if logs_raw is None:
+    logs_raw = list(mongo.logs.find({"location_id": location_id}))
+    if len(logs_raw) == 0:
         return error_response("logs not found")
 
     sum = monthly_sum_by_type(logs_raw, type)
