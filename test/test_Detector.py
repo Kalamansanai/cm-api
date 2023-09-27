@@ -1,5 +1,52 @@
+import pytest
 import domain.detector
-from domain.detector import DetectorConfig, DetectorState
+from domain.detector import DetectorConfig, DetectorState, Detector
+@pytest.fixture
+def testDetector_json():
+    return {
+        "_id": 1,
+        "location_id": 2,
+        "detector_id": "3",
+        "detector_name": "test",
+        "type": "test",
+        "state": "init",
+        "detector_config": {"char_num": 544}
+    }
+def test_detector_get_db(testDetector_json):
+    test_Detector = Detector(testDetector_json)
+    response = test_Detector.get_db()
+    assert response["_id"] == 1
+    assert response["location_id"] == 2
+    assert response["detector_id"] == "3"
+    assert response["detector_name"] == "test"
+    assert response["type"] == "test"
+    assert response["state"] == "DetectorState.INIT"
+    assert response["detector_config"]["char_num"] == 544
+def test_get_json(testDetector_json):
+    test_Detector = Detector(testDetector_json)
+    response = test_Detector.get_json()
+    assert response["id"] == "1"
+    assert response["location_id"] == "2"
+    assert response["detector_id"] == "3"
+    assert response["detector_name"] == "test"
+    assert response["type"] == "test"
+    assert response["state"] == "DetectorState.INIT"
+    assert response["detector_config"]["char_num"] == 544
+def test_create_detector_for_mongo():
+    response = domain.detector.create_detector_for_mongo(
+        "1",
+        "2",
+        "test",
+        544,
+        5,
+        "test"
+    )
+    assert response["location_id"] == "2"
+    assert response["detector_id"] == "1"
+    assert response["detector_name"] == "test"
+    assert response["type"] == "test"
+    assert response["detector_config"]["char_num"] == 544
+    assert response["detector_config"]["coma_position"] == 5
 def test_detector_valid():
     id_good = "18db1559-982d-4ede-92b6-9b21e05acdc2"
     id_fake = "test"
