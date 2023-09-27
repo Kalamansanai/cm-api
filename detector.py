@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from cm_config import Logger
+from cm_config import IMAGE_PATH, Logger
 from ultralytics import YOLO
 
 class _Detector:
@@ -19,7 +19,7 @@ class _Detector:
             Logger.info("No detection")
 
 
-        cv2.imwrite(f"library/images/{id}.png", cv2.cvtColor(orig, cv2.COLOR_BGR2RGB))
+        cv2.imwrite(f"{IMAGE_PATH}/{id}.png", cv2.cvtColor(orig, cv2.COLOR_BGR2RGB))
         return ret
 
     def detect_plates(self, img):
