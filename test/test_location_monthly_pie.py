@@ -6,14 +6,14 @@ def test_prepare_piechart_data():
         "location_id": "1",
         "detector_id": "1",
         "type": "water",
-        "timestamp": datetime.datetime.now().month,
+        "timestamp": datetime.datetime.now(),
         "value": 2
     },
     {
         "location_id": "1",
         "detector_id": "2",
         "type": "water",
-        "timestamp": datetime.datetime.now().month,
+        "timestamp": datetime.datetime.now(),
         "value": 10
     }]
     response = locaion_monthly_pie.prepare_piechart_data(input_logs)
