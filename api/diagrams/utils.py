@@ -1,9 +1,9 @@
-def make_config(detector_ids):
+def make_config(line_keys: list[str]):
 
     lines = [{
       "type": "monotone",
-      "dataKey": detector_id,
-      "stroke": "#82ca9d"} for detector_id in detector_ids]
+      "dataKey": line_key,
+      "stroke": "#82ca9d"} for line_key in line_keys]
 
     return {
         "type": "dashboard",
@@ -21,7 +21,7 @@ def make_config(detector_ids):
             "type": "number"
         },
         "xAxis": {
-            "datakey": "date"
+            "datakey": "day"
         },""
         "cartesianGrid": {
             "strokeDashArray": "3 3"
