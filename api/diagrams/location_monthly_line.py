@@ -28,7 +28,7 @@ def get_logs_for_plot_by_location(_, location_id):
 def prepare_detector_lineplot_data(logs: list[dict]):
     df = pl.from_dicts(logs)
 
-    current_month = datetime.now().month - 1
+    current_month = datetime.now().month
 
     df = df.sort("type")
 
