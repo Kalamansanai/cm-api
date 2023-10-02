@@ -8,8 +8,8 @@ from api import login_required
 import polars as pl
 
 @app.route("/get_logs_for_plot_by_location/<location_id>", methods=["GET"])
-# @login_required
-def get_logs_for_plot_by_location(location_id):
+@login_required
+def get_logs_for_plot_by_location(_, location_id):
     logs_raw = list(mongo.logs.find({"location_id": location_id}))
     if logs_raw == []:
         return error_response("no log found")
@@ -17,7 +17,6 @@ def get_logs_for_plot_by_location(location_id):
     data_list = prepare_detector_lineplot_data(logs_raw)
     config_list = [make_config(["current"]) for data in data_list]
 
-    print(data_list)
     return success_response(
             [ 
                 {
