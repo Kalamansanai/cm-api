@@ -15,7 +15,7 @@ def get_logs_for_plot_by_location(_, location_id):
         return error_response("no log found")
 
     data_list = prepare_detector_lineplot_data(logs_raw)
-    config_list = [make_config(["current"]) for data in data_list]
+    config_list = [make_config(["current"]) for _ in data_list]
 
     return success_response(
             [ 
@@ -31,7 +31,8 @@ def prepare_detector_lineplot_data(logs: list[dict]):
 
     current_month = datetime.now().month
 
-    df = df.sort("type").filter((df["timestamp"].dt.month() == current_month) | (df["timestamp"].dt.month() == current_month - 1))
+    df = df.sort("type")
+    df = df.filter((df["timestamp"].dt.month() == current_month) | (df["timestamp"].dt.month() == current_month - 1))
 
     df = df.with_columns(
             [
