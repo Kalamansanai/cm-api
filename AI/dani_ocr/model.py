@@ -1,4 +1,5 @@
 import cv2
+import time
 import numpy as np
 from cm_config import IMAGE_PATH, Logger
 from ultralytics import YOLO
@@ -24,7 +25,7 @@ class DaniOCR(Model):
         else:
             Logger.info("No detection")
 
-        cv2.imwrite(f"{IMAGE_PATH}/{id}.png", cv2.cvtColor(orig, cv2.COLOR_BGR2RGB))
+        cv2.imwrite(f"{IMAGE_PATH}/{id}_{round(time.time() * 1000)}.png", cv2.cvtColor(orig, cv2.COLOR_BGR2RGB))
         return ret
 
     def detect_plates(self, img):
