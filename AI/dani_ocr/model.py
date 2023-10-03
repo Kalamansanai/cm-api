@@ -15,7 +15,7 @@ class DaniOCR(Model):
     def validate(self, data):
         return validate(data)
 
-    def detect(self, img, length, decimal, id, thr=0.4):
+    def detect(self, img, length, decimal, id, thr=0.8):
         img, orig, coords = self.detect_plates(img)
 
         ret = None
