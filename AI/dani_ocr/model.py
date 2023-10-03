@@ -116,9 +116,12 @@ class DaniOCR(Model):
             Logger.info(f"Removed {r} image(s) below threshold ({thr}).")
 
         # Create float number from list
-        value = int("".join([str(int(row[-1])) for row in detections])) / (
-            10**decimal
-        )
+        if len(detections) > 0:
+            value = int("".join([str(int(row[-1])) for row in detections])) / (
+                10**decimal
+            )
+        else:
+            value = None
 
         # Not enough numbers found
         if len(detections) < length:
