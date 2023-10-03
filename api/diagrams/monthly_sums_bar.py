@@ -50,13 +50,9 @@ def monthly_stat(logs):
                 {
                     "month": name,
                     'water': water_value,
-                    "waterColor": "hsl(229, 70%, 50%)",
                     "electricity": electricity_value, 
-                    "electricityColor": "hsl(104, 70%, 50%)",
                     "gas": gas_value,
-                    "gasColor": "hsl(344, 70%, 50%)"
                 }
             )
-
 
     return reformatted_data
