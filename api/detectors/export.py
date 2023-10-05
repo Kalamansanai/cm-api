@@ -1,4 +1,3 @@
-from bson.objectid import ObjectId
 from startup import app, mongo
 import tempfile
 import os
@@ -11,11 +10,13 @@ from api import login_required
 @app.route("/detector/<detector_id>/export")
 @login_required
 def export_detector_log(_,detector_id):
-    detector_raw: dict | None = mongo.detectors.find_one({"_id": ObjectId(detector_id)})
-    if detector_raw is None:
-        return error_response("no detector found!")
+    print(detector_id)
+    logs_raw = list(mongo.logs.find({"detector_id":detector_id}))
+    print(logs_raw)
+    if len(logs_raw) == 0:
+        return error_response("no log found!")
 
-    logs_table = pd.DataFrame.from_records(detector_raw["logs"])
+    logs_table = pd.DataFrame.from_records(logs_raw)
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmppath = os.path.join(tmpdirname, f"{str(datetime.now())}.csv")
