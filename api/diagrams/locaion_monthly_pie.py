@@ -32,7 +32,7 @@ def prepare_piechart_data(logs: list[dict]):
             (df["timestamp"].dt.month() == current_month)
             & (df["type"].shift() == df["type"])
         )
-        .then((df["value"] - df["value"].shift()))
+        .then((df["value"] - df["value"].shift()) * df["cost"])
         .otherwise(0)
         .alias("consumption")
     )

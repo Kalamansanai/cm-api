@@ -32,7 +32,7 @@ def monthly_stat(logs):
 
     df = df.with_columns(
         pl.when((df["type"].shift() == df["type"]))
-        .then((df["value"] - df["value"].shift()))
+        .then((df["value"] - df["value"].shift()) * df["cost"])
         .otherwise(0)
         .alias("consumption")
     )

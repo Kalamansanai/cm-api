@@ -48,6 +48,7 @@ def send_image(detector_id):
                 "type": detector.type,
                 "timestamp": datetime.now(),
                 "value": log_data,
+                "cost": detector.detector_config.cost,
             }
         )
         mongo.logs.insert_one(new_log.get_json())
