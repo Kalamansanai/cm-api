@@ -21,6 +21,7 @@ class DaniOCR(Model):
             f"{IMAGE_PATH}/{round(time.time() * 1000)}.png",
             cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
         )
+  
         img, orig, coords = self.detect_plates(img)
 
         ret = None
