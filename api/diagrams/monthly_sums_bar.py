@@ -15,11 +15,10 @@ def get_monthly_sums(_, location_id):
     if len(logs_raw) == 0:
         return error_response("logs not found")
 
-    stats = monthly_stat(logs_raw)
-    if stats is None:
-        return error_response("error")
+    table = monthly_stat(logs_raw)
+    dict = table_to_dict(table)
 
-    return success_response(stats)
+    return success_response(dict)
 
 
 def monthly_stat(logs):
@@ -38,10 +37,12 @@ def monthly_stat(logs):
         .alias("consumption")
     )
 
-    grouped = df.group_by(["month", "type"]).agg(pl.col("consumption").sum())
+    return df.group_by(["month", "type"]).agg(pl.col("consumption").sum())
 
+
+def table_to_dict(table):
     reformatted_data = []
-    for name, data in grouped.sort("month").group_by("month"):
+    for name, data in table.sort("month").group_by("month"):
         water_value = (
             data.filter(data["type"] == "water").rows()[0][2]
             if not data.filter(data["type"] == "water").is_empty()

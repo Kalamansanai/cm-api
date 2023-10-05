@@ -14,7 +14,10 @@ def get_location_pie(_, location_id):
     if logs_raw == []:
         return error_response("no log found")
 
-    return success_response(prepare_piechart_data(logs_raw))
+    table = prepare_piechart_data(logs_raw)
+    dict = table_to_dict(table)
+
+    return success_response(dict)
 
 
 def prepare_piechart_data(logs: list[dict]):
@@ -34,10 +37,12 @@ def prepare_piechart_data(logs: list[dict]):
         .alias("consumption")
     )
 
-    grouped = df.group_by("type").agg(pl.col("consumption").sum())
+    return df.group_by("type").agg(pl.col("consumption").sum())
 
+
+def table_to_dict(table):
     reformatted_data = []
-    for type in grouped.rows():
+    for type in table.rows():
         name = type[0]
         value = type[1]
         reformatted_data.append(
