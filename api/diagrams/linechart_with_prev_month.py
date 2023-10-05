@@ -14,7 +14,21 @@ def linechart_with_prev_month(_, location_id):
     if logs_raw == []:
         return error_response("no log found")
 
-    data_list = prepare_detector_lineplot_data(logs_raw)
+    _df = pl.from_dicts(logs_raw)
+
+    data_list = []
+    for type in ["water", "electricity", "gas"]:
+        df = _df
+
+        df_current, df_prev = prepare_detector_lineplot_data(df, type)
+
+        data_list.append(
+            df_current.join(df_prev, on="day", how="outer")
+            .select(["day", "consumption", "consumption_right"])
+            .rename({"consumption": "current", "consumption_right": "prev"})
+            .to_dicts()
+        )
+
     config_list = [make_config(["prev", "current"]) for _ in data_list]
 
     return success_response(
@@ -25,47 +39,33 @@ def linechart_with_prev_month(_, location_id):
     )
 
 
-def prepare_detector_lineplot_data(logs: list[dict]):
-    _df = pl.from_dicts(logs)
-
+def prepare_detector_lineplot_data(df, type):
     current_month = datetime.now().month
 
-    result = []
-    for type in ["water", "electricity", "gas"]:
-        df = _df
-        df = (
-            df.with_columns(
-                [
-                    pl.col("timestamp").dt.day().alias("day"),
-                    pl.col("timestamp").dt.month().alias("month"),
-                    pl.when((df["type"].shift() == df["type"]))
-                    .then(
-                        (df["value"] - df["value"].shift()).fill_null(strategy="zero")
-                    )
-                    .otherwise(0)
-                    .alias("consumption"),
-                ]
-            )
-            .filter(
-                (df["type"] == type)
-                & (
-                    (df["timestamp"].dt.month() == current_month)
-                    | (df["timestamp"].dt.month() == current_month - 1)
-                )
-            )
-            .group_by(["month", "day"])
-            .agg(pl.col("consumption").sum())
-            .sort(["month", "day"])
+    df = (
+        df.with_columns(
+            [
+                pl.col("timestamp").dt.day().alias("day"),
+                pl.col("timestamp").dt.month().alias("month"),
+                pl.when((df["type"].shift() == df["type"]))
+                .then((df["value"] - df["value"].shift()).fill_null(strategy="zero"))
+                .otherwise(0)
+                .alias("consumption"),
+            ]
         )
-
-        df_current = df.filter(pl.col("month") == current_month)
-        df_prev = df.filter(pl.col("month") == current_month - 1)
-
-        result.append(
-            df_current.join(df_prev, on="day", how="outer")
-            .select(["day", "consumption", "consumption_right"])
-            .rename({"consumption": "current", "consumption_right": "prev"})
-            .to_dicts()
+        .filter(
+            (df["type"] == type)
+            & (
+                (df["timestamp"].dt.month() == current_month)
+                | (df["timestamp"].dt.month() == current_month - 1)
+            )
         )
+        .group_by(["month", "day"])
+        .agg(pl.col("consumption").sum())
+        .sort(["month", "day"])
+    )
 
-    return result
+    df_current = df.filter(pl.col("month") == current_month)
+    df_prev = df.filter(pl.col("month") == current_month - 1)
+
+    return df_current, df_prev
