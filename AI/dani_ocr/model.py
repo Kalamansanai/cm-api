@@ -17,7 +17,10 @@ class DaniOCR(Model):
         return validate(data)
 
     def detect(self, img, length, decimal, id, thr=0.8):
-        cv2.imwrite(f"{IMAGE_PATH}/{round(time.time() * 1000)}.png", cv2.cvtColor(orig, cv2.COLOR_BGR2RGB))
+        cv2.imwrite(
+            f"{IMAGE_PATH}/{round(time.time() * 1000)}.png",
+            cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
+        )
         img, orig, coords = self.detect_plates(img)
 
         ret = None
