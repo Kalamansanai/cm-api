@@ -1,5 +1,4 @@
-class Location():
-
+class Location:
     def __init__(self, location_json: dict):
         self.id = location_json["_id"]
         self.user_id: str = location_json["user_id"]
@@ -17,4 +16,3 @@ class Location():
             "user_id": str(self.user_id),
             "name": self.name,
         }
-

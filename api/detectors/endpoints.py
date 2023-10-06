@@ -1,11 +1,11 @@
 from bson.objectid import ObjectId
-from domain.log import Log
 from startup import app, mongo
 from cm_config import DETECTOR_CONFIG
 from flask import abort, send_file
 from api.api_utils import success_response, error_response, validate_json
 from domain.detector import Detector
 from api import login_required, detector_id_validation_required
+from api.logs.change_cost import change_cost
 
 
 @app.route("/get_detector/<detector_id>", methods=["GET"])
@@ -18,12 +18,11 @@ def get_detector_logs(_, detector_id):
     detector = Detector(detector_raw)
     return success_response(detector.get_json())
 
+
 @app.route("/get_detector_config/<detector_id>")
 @detector_id_validation_required
 def get_detector_config(detector_id):
-    detector = mongo.detectors.find_one(
-        {"detector_id": detector_id}
-    )
+    detector = mongo.detectors.find_one({"detector_id": detector_id})
 
     if detector is None:
         return error_response("detector has not added to any user yet !")
@@ -40,11 +39,14 @@ def set_detector_config(_, detector_id):
     (new_config,) = validate_json(["new_config"])
 
     mongo.detectors.update_one(
-        {"detector_id": detector_id},
-        {"$set": {"detector_config": new_config}}
+        {"detector_id": detector_id}, {"$set": {"detector_config": new_config}}
     )
 
+    if "cost" in new_config.keys():
+        change_cost(detector_id, new_config["cost"])
+
     return success_response("config updates successfully")
+
 
 @app.route("/detector/<detector_id>", methods=["DELETE"])
 @login_required
@@ -53,7 +55,7 @@ def delete_detector(user_data, detector_id):
 
     mongo.locations.find_one_and_update(
         {"user_id": ObjectId(user_data["id"])},
-        {"$pull": {"detectors": {"_id": ObjectId(detector_id)}}}
+        {"$pull": {"detectors": {"_id": ObjectId(detector_id)}}},
     )
 
     return success_response("detector deleted successfully")

@@ -18,7 +18,7 @@ from api.diagrams import (
     linechart_with_prev_month,
 )
 from api.locations import endpoints
-from api.logs import get_by_detector
+from api.logs import get_by_detector, change_cost
 
 
 @app.route("/")

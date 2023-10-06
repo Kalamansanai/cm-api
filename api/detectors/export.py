@@ -7,12 +7,11 @@ import pandas as pd
 from api.api_utils import error_response
 from api import login_required
 
+
 @app.route("/detector/<detector_id>/export")
 @login_required
-def export_detector_log(_,detector_id):
-    print(detector_id)
-    logs_raw = list(mongo.logs.find({"detector_id":detector_id}))
-    print(logs_raw)
+def export_detector_log(_, detector_id):
+    logs_raw = list(mongo.logs.find({"detector_id": detector_id}))
     if len(logs_raw) == 0:
         return error_response("no log found!")
 
@@ -20,7 +19,7 @@ def export_detector_log(_,detector_id):
 
     with tempfile.TemporaryDirectory() as tmpdirname:
         tmppath = os.path.join(tmpdirname, f"{str(datetime.now())}.csv")
-        with open(tmppath, 'w') as tmpfile:
+        with open(tmppath, "w") as tmpfile:
             logs_table.to_csv(tmpfile.name, index=False)
             mimetype = "text/csv"
 
