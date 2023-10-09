@@ -62,9 +62,9 @@ def table_to_dict(table):
         reformatted_data.append(
             {
                 "month": name,
-                "water": water_value,
-                "electricity": electricity_value,
-                "gas": gas_value,
+                "water": round(water_value, 1),
+                "electricity": round(electricity_value, 1),
+                "gas": round(gas_value, 1),
             }
         )
 
