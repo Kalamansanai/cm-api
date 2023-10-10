@@ -49,7 +49,7 @@ def table_to_dict(table):
             {
                 "id": name,
                 "label": value,
-                "value": round(value, 3),
+                "value": round(value, 1),
                 "color": TYPE_COLORS[name],
             }
         )
