@@ -23,6 +23,8 @@ GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 IMAGE_PATH = config["IMAGE_PATH"]
 
+THRESHOLD = float(config["THRESHOLD"])
+
 DETECTOR_CONFIG = {
     "quality": 12,
     "resolution": 5,

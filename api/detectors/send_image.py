@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import request
 from AI.dani_ocr.model import DaniOCR
-from cm_config import IMAGE_PATH
+from cm_config import IMAGE_PATH, THRESHOLD
 from domain.detector_image import DetectorImage
 from domain.location import Location
 from domain.detector import Detector
@@ -36,6 +36,7 @@ def send_image(detector_id):
         detector.detector_config.char_num,
         detector.detector_config.coma_position,
         detector_id,
+        thr = THRESHOLD
     )
 
     is_valid = model.validate(log_data)
